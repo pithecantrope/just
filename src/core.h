@@ -2,7 +2,7 @@
  * @file core.h
  * @brief Core utilities
  * @copyright Copyright (C) 2025 Egor Afanasin <afanasin.egor@gmail.com>
- * @license MIT
+ * @license GPL-3.0
  * @requirements
  * - Compiler: GCC or Clang
  * - Platform: POSIX-like systems (Linux, macOS)
