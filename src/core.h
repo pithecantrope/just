@@ -1,38 +1,32 @@
 /**
- * @file core.h
- * @brief Core utilities
- * @copyright Copyright (C) 2025 Egor Afanasin <afanasin.egor@gmail.com>
- * @license GPL-3.0
- * @requirements
- * - Compiler: GCC or Clang
- * - Platform: POSIX-like systems (Linux, macOS)
- * - C Standard: >= C99
+ * @file      core.h
+ * @brief     Core utilities
+ * @author    Egor Afanasin <afanasin.egor@gmail.com>
+ * @copyright GPL-3.0
+ * @attention GCC or Clang
  * @details
  * Types:
  * - Basic: `byte`, `i8`, `u8`, `i16`, `u16`, `i32`, `u32`, `i64`, `u64`, `f32`, `f64`, `isize`, `usize`
- * - Rich: `arena` (region-based allocator), `s8` (string) 
- * Macros:
- * - `assert(c)`: Debugger-oriented assertion that in release builds turns into an optimization hint
- * - `lable(name)`: Inline assembly label for debugging
+ * - Rich: `arena` (linear allocator), `s8` (UTF-8 string)
+ * General:
  * - `countof(xs)`: Computes the size of a static array
  * - `container_of(ptr, type, member)`: Computes the address of the type containing a given member pointer
  * - `in_range(min, value, max)`: Checks if the value is within a range
- * - `PTR`: Non-NULL pointer `[static 1]`
+ * - `PTR`: Non-NULL pointer (`[static 1]`)
  * - `INLINE`: `static inline`
- * - `TODO(args...)`: Marks incomplete code
- * Sanitizer flags:
- * - Address: `abort_on_error=true`,`check_initialization_order=true`, `strict_init_order=true`, `detect_stack_use_after_return=true`, `strict_string_checks=true`
- * - Undefined Behaviour: `abort_on_error=true`
- * Functions `u8` (ctype.h-style):
+ * - `ASSERT(c)`: Debugger-oriented assertion that in release builds turns into an optimization hint
+ * - `LABEL(name)`: Inline assembly label for debugging (break or dprintf on label name)
+ * - `TODO(...)`: Suppress unused arguments warnings
+ * `arena` (linear allocator):
+ * -
+ * `u8` (`ctype.h`-style):
  * - is_digit, is_upper, is_lower, is_alpha, is_alnum, is_xdigit
  * - is_print, is_graph, is_blank, is_space, is_ascii, is_cntrl, is_punct
  * - to_upper, to_lower, to_ascii
- * Functions `arena`:
- * -
- * Functions `s8`:
+ * `s8` (UTF-8 string):
  * - cmp(s1, s2), eq(s1, s2)
  * - starts_with(s, prefix), ends_with(s, suffix)
- * - find(s, sub), count(s, sub) 
+ * - find(s, sub), count(s, sub)
  */
 
 #ifndef CORE_H_
@@ -66,15 +60,22 @@ typedef ptrdiff_t isize;
 typedef size_t    usize;
 #define USIZE_MAX SIZE_MAX
 
-#define assert(c)   while (!(c)) __builtin_unreachable()
-#define label(name) __asm__ volatile (#name ":\n\tnop")
 #define countof(xs) (sizeof(xs) / sizeof(0[xs]))
 #define container_of(ptr, type, member) ((type*)((byte*)(ptr) - offsetof(type, member)))
 #define in_range(min, value, max) ((min) <= (value) && (value) <= (max))
 #define PTR [static 1]
 #define INLINE static inline
+#define ASSERT(c)   while (!(c)) __builtin_unreachable()
+#define LABEL(name) __asm__ volatile (#name ":\n\tnop")
+#define TODO(...)   (CORE_TODO_1(__VA_ARGS__, 0))
 
-#define TODO(...)                       (CORE_TODO_1 (__VA_ARGS__, 0))
+#if defined(__SANITIZE_ADDRESS__)   || __has_feature(address_sanitizer)
+const char* __asan_default_options (void) { return "abort_on_error=true:check_initialization_order=true:strict_init_order=true:detect_stack_use_after_return=true:strict_string_checks=true"; }
+#endif
+#if defined(__SANITIZE_UNDEFINED__) || __has_feature(undefined_behavior_sanitizer)
+const char* __ubsan_default_options(void) { return "abort_on_error=true"; }
+#endif
+
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
 #define CORE_TODO_2(arg, ...) (void)arg, CORE_TODO_3 (__VA_ARGS__, 0)
 #define CORE_TODO_3(arg, ...) (void)arg, CORE_TODO_4 (__VA_ARGS__, 0)
@@ -83,13 +84,6 @@ typedef size_t    usize;
 #define CORE_TODO_6(arg, ...) (void)arg, CORE_TODO_7 (__VA_ARGS__, 0)
 #define CORE_TODO_7(arg, ...) (void)arg, CORE_TODO_8 (__VA_ARGS__, 0)
 #define CORE_TODO_8(arg, ...) (void)arg
-
-#if __has_feature(address_sanitizer) || defined(__SANITIZE_ADDRESS__)
-const char* __asan_default_options (void) { return "abort_on_error=true:check_initialization_order=true:strict_init_order=true:detect_stack_use_after_return=true:strict_string_checks=true"; }
-#endif
-#if __has_feature(undefined_behavior_sanitizer) || defined(__SANITIZE_UNDEFINED__)
-const char* __ubsan_default_options(void) { return "abort_on_error=true"; }
-#endif
 
 // arena -------------------------------------------------------------------------------------------
 
@@ -110,8 +104,8 @@ INLINE bool u8is_space (u8 c) { return u8is_blank(c) || c == '\r' || c == '\n' |
 INLINE bool u8is_ascii (u8 c) { return c <= 127; }
 INLINE bool u8is_cntrl (u8 c) { return c < ' ' || c == 127; }
 INLINE bool u8is_punct (u8 c) { return u8is_graph(c) && !u8is_alnum(c); }
-INLINE u8   u8to_upper (u8 c) { return in_range('a', c, 'z') ? c - ('a' - 'A') : c; }
-INLINE u8   u8to_lower (u8 c) { return in_range('A', c, 'Z') ? c + ('a' - 'A') : c; }
+INLINE u8   u8to_upper (u8 c) { return u8is_lower(c) ? c - ('a' - 'A') : c; }
+INLINE u8   u8to_lower (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
 INLINE u8   u8to_ascii (u8 c) { return c & 127; }
 
 // s8 ----------------------------------------------------------------------------------------------
