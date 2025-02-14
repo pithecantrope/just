@@ -74,7 +74,7 @@ typedef size_t    usize;
 #define TODO(...)   (CORE_TODO_1(__VA_ARGS__, 0))
 // EXAMPLE TODO EXAMPLE TEST EXAMPLE EXPECT:
 #if 0   // In tests.h:
-        #if defined (TESTS)
+        #if defined(TESTS)
         TEST("true") {
                 EXPECT(!0);
         }
@@ -150,10 +150,12 @@ typedef struct {
 // #define s8(s) (s8){.data = (u8*)s, .len = (isize)(strlen(s))}
 // TODO: _Generic (from FILE*, itself(copy))
 
+// s1 < s2 -> -1, s1 == s2 -> 0, s1 > s2 -> 1 
 INLINE i32
 s8cmp(const s8 s1 PTR, const s8 s2 PTR) {
         if (s1->len != s2->len) { return s1->len < s2->len ? -1 : 1; }
-        return memcmp(s1->data, s2->data, (size_t)s1->len);
+        i32 cmp = memcmp(s1->data, s2->data, (size_t)s1->len);
+        return (cmp > 0) - (cmp < 0);
 }
 
 INLINE bool
