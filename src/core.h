@@ -5,6 +5,7 @@
  * @copyright GPL-3.0
  * @attention GCC or Clang
  * @details
+ * Search `EXAMPLE 'name'` for the examples. Available: TODO, TEST, EXPECT
  * Types:
  * - Basic: `byte`, `i8`, `u8`, `i16`, `u16`, `i32`, `u32`, `i64`, `u64`, `f32`, `f64`, `isize`, `usize`
  * - Rich: `arena` (linear allocator), `s8` (UTF-8 string)
@@ -17,6 +18,8 @@
  * - `ASSERT(c)`: Debugger-oriented assertion that in release builds turns into an optimization hint
  * - `LABEL(name)`: Inline assembly label for debugging (break or dprintf on label name)
  * - `TODO(...)`: Suppress unused arguments warnings
+ * - `TEST(name)`: Define a new test case
+ * - `EXPECT(condition)`: Check if condition is true within a test case 
  * `arena` (linear allocator):
  * -
  * `u8` (`ctype.h`-style):
@@ -36,6 +39,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -68,6 +72,35 @@ typedef size_t    usize;
 #define ASSERT(c)   while (!(c)) __builtin_unreachable()
 #define LABEL(name) __asm__ volatile (#name ":\n\tnop")
 #define TODO(...)   (CORE_TODO_1(__VA_ARGS__, 0))
+// EXAMPLE TODO EXAMPLE TEST EXAMPLE EXPECT:
+#if 0   // In tests.h:
+        #if defined (TESTS)
+        TEST("true") {
+                EXPECT(!0);
+        }
+        TEST("false") {
+                EXPECT(!0 == 0);
+        }
+        #else
+        // IWYU pragma: begin_keep
+        #include "core.h"
+        // IWYU pragma: end_keep
+        #endif
+#endif
+#if 0   // In main.c:
+        #include "tests.h"
+        int
+        main(int argc, char* argv[]) {
+                TODO(argc, argv);
+                const char* TEST;
+        #define TESTS
+        #include "tests.h"
+        #undef TESTS
+                return EXIT_SUCCESS;
+        }
+#endif
+#define TEST(name) TEST = name;
+#define EXPECT(condition) if (!(condition)) printf("FAILED: %s:%d: Test `%s':\n\tCondition: `%s'\n", __FILE__, __LINE__, TEST, #condition)
 
 #if defined(__SANITIZE_ADDRESS__)   || __has_feature(address_sanitizer)
 const char* __asan_default_options (void) { return "abort_on_error=true:check_initialization_order=true:strict_init_order=true:detect_stack_use_after_return=true:strict_string_checks=true"; }
