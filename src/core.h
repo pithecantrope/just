@@ -7,7 +7,7 @@
  * @details
  * Types:
  * - Basic: `byte`, `i8`, `u8`, `i16`, `u16`, `i32`, `u32`, `i64`, `u64`, `f32`, `f64`, `isize`, `usize`
- * - Rich: `arena` (linear allocator), `u8` (UTF-8 char), `s8` (UTF-8 string)
+ * - Rich: `u8` (UTF-8 char), `arena` (linear allocator), `s8` (UTF-8 string)
  * General:
  * - `PTR`: Non-NULL pointer
  * - `INLINE`: `static inline`
@@ -16,12 +16,12 @@
  * - `TODO(...)`: Suppress unused arguments warnings
  * - `TEST(name)`: Define a test case
  * - `EXPECT(condition)`: Check if condition is true within a test case 
- * `arena` (linear allocator):
- * -
  * `u8` (UTF-8 char):
  * - is_digit, is_upper, is_lower, is_alpha, is_alnum, is_xdigit
  * - is_print, is_graph, is_blank, is_space, is_ascii, is_cntrl, is_punct
  * - to_upper, to_lower, to_ascii
+ * `arena` (linear allocator):
+ * -
  * `s8` (UTF-8 string):
  * - cmp(s1, s2), eq(s1, s2)
  * - starts_with(s, prefix), ends_with(s, suffix)
@@ -94,8 +94,6 @@ typedef size_t      usize;
 #define TEST(name) TEST = name;
 #define EXPECT(condition) if (!(condition)) printf("FAIL: %s:%d: Test `%s':\n\tCondition: `%s'\n", __FILE__, __LINE__, TEST, #condition)
 
-// arena -------------------------------------------------------------------------------------------
-
 // u8 ----------------------------------------------------------------------------------------------
 #define U8SIZE 8
 #define U8ALPHABET 256
@@ -116,6 +114,8 @@ INLINE u8   u8to_upper (u8 c) { return u8is_lower(c) ? c - ('a' - 'A') : c; }
 INLINE u8   u8to_lower (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
 INLINE u8   u8to_ascii (u8 c) { return c & 127; }
 
+// arena -------------------------------------------------------------------------------------------
+
 // s8 ----------------------------------------------------------------------------------------------
 typedef struct {
         u8* data;
@@ -123,73 +123,14 @@ typedef struct {
 } s8;
 #define s8(s) &(s8){.data = (u8*)s, .len = (isize)(sizeof(s) - 1)}
 
-INLINE i32
-s8cmp(const s8 s1 PTR, const s8 s2 PTR) {
-        if (s1->len != s2->len) { return s1->len < s2->len ? -1 : 1; }
-        i32 cmp = memcmp(s1->data, s2->data, (size_t)s1->len);
-        return (cmp > 0) - (cmp < 0);
-}
-
-INLINE bool
-s8eq(const s8 s1 PTR, const s8 s2 PTR) {
-        return s8cmp(s1, s2) == 0;
-}
-
-INLINE bool
-s8starts_with(const s8 s PTR, const s8 prefix PTR) {
-        return (s->len >= prefix->len) && memcmp(s->data, prefix->data, (size_t)prefix->len) == 0;
-}
-
-INLINE bool
-s8ends_with(const s8 s PTR, const s8 suffix PTR) {
-        return (s->len >= suffix->len) &&
-               memcmp(s->data + (s->len - suffix->len), suffix->data, (size_t)suffix->len) == 0;
-}
-
-INLINE isize
-s8find(const s8 s PTR, const s8 sub PTR) {
-        // Horspool algorithm
-        if (s->len < sub->len) { return -1; }
-        if (sub->len == 0) { return 0; }
-        isize last_occ[U8ALPHABET];
-        memset(last_occ, -1, U8SIZE * U8ALPHABET);
-        for (isize i = 0; i < sub->len - 1; ++i) { last_occ[sub->data[i]] = i; }
-
-        for (isize i = 0; i <= s->len - sub->len;) {
-                for (isize j = sub->len - 1; sub->data[j] == s->data[j + i];) {
-                        if (--j == -1) { return i; }
-                }
-                i += sub->len - 1 - last_occ[s->data[i + sub->len - 1]];
-        }
-        return -1;
-}
-
-INLINE isize
-s8count(const s8 s PTR, const s8 sub PTR) {
-        if (s->len < sub->len) { return 0; }
-        if (sub->len == 0) { return s->len; }
-        isize count = 0;
-        isize last_occ[U8ALPHABET];
-        memset(last_occ, -1, U8SIZE * U8ALPHABET);
-        for (isize i = 0; i < sub->len - 1; ++i) { last_occ[sub->data[i]] = i; }
-
-        for (isize i = 0; i <= s->len - sub->len;) {
-                for (isize j = sub->len - 1; sub->data[j] == s->data[j + i];) {
-                        if (--j == -1) { ++count; break; }
-                }
-                i += sub->len - 1 - last_occ[s->data[i + sub->len - 1]];
-        }
-        return count;
-}
+i32   s8cmp(const s8 s1 PTR, const s8 s2 PTR);
+bool  s8eq(const s8 s1 PTR, const s8 s2 PTR);
+bool  s8starts_with(const s8 s PTR, const s8 prefix PTR);
+bool  s8ends_with(const s8 s PTR, const s8 suffix PTR);
+isize s8find(const s8 s PTR, const s8 sub PTR);
+isize s8count(const s8 s PTR, const s8 sub PTR);
 
 // Internals ---------------------------------------------------------------------------------------
-#if defined(__SANITIZE_ADDRESS__)   || __has_feature(address_sanitizer)
-const char* __asan_default_options (void) { return "abort_on_error=true:check_initialization_order=true:strict_init_order=true:detect_stack_use_after_return=true:strict_string_checks=true"; }
-#endif
-#if defined(__SANITIZE_UNDEFINED__) || __has_feature(undefined_behavior_sanitizer)
-const char* __ubsan_default_options(void) { return "abort_on_error=true"; }
-#endif
-
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
 #define CORE_TODO_2(arg, ...) (void)arg, CORE_TODO_3 (__VA_ARGS__, 0)
 #define CORE_TODO_3(arg, ...) (void)arg, CORE_TODO_4 (__VA_ARGS__, 0)
