@@ -59,11 +59,6 @@ typedef ptrdiff_t   isize;
 #define ISIZE_MAX   PTRDIFF_MAX
 typedef size_t      usize;
 #define USIZE_MAX   SIZE_MAX
-typedef struct {
-        u8* data;
-        isize len;
-} s8;
-#define s8(s) (s8){.data = (u8*)s, .len = (isize)(sizeof(s) - 1)}
 
 #define PTR [static 1]
 #define INLINE static inline
@@ -122,6 +117,12 @@ INLINE u8   u8to_lower (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
 INLINE u8   u8to_ascii (u8 c) { return c & 127; }
 
 // s8 ----------------------------------------------------------------------------------------------
+typedef struct {
+        u8* data;
+        isize len;
+} s8;
+#define s8(s) &(s8){.data = (u8*)s, .len = (isize)(sizeof(s) - 1)}
+
 INLINE i32
 s8cmp(const s8 s1 PTR, const s8 s2 PTR) {
         if (s1->len != s2->len) { return s1->len < s2->len ? -1 : 1; }
@@ -145,10 +146,11 @@ s8ends_with(const s8 s PTR, const s8 suffix PTR) {
                memcmp(s->data + (s->len - suffix->len), suffix->data, (size_t)suffix->len) == 0;
 }
 
-// Horspool algorithm
 INLINE isize
 s8find(const s8 s PTR, const s8 sub PTR) {
-        if (sub->len == 0 || s->len < sub->len) { return -1 + (s->len == 0 && sub->len == 0); }
+        // Horspool algorithm
+        if (s->len < sub->len) { return -1; }
+        if (sub->len == 0) { return 0; }
         isize last_occ[U8ALPHABET];
         memset(last_occ, -1, U8SIZE * U8ALPHABET);
         for (isize i = 0; i < sub->len - 1; ++i) { last_occ[sub->data[i]] = i; }
@@ -164,7 +166,8 @@ s8find(const s8 s PTR, const s8 sub PTR) {
 
 INLINE isize
 s8count(const s8 s PTR, const s8 sub PTR) {
-        if (sub->len == 0 || s->len < sub->len) { return 0 + (s->len == 0 && sub->len == 0); }
+        if (s->len < sub->len) { return 0; }
+        if (sub->len == 0) { return s->len; }
         isize count = 0;
         isize last_occ[U8ALPHABET];
         memset(last_occ, -1, U8SIZE * U8ALPHABET);
