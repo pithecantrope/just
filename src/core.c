@@ -43,14 +43,20 @@ arena_free(arena a PTR) {
         a->beg = a->end = NULL;
 }
 
+void
+arena_reset(arena a PTR) {
+        for (arena_region* r = a->beg; r != NULL; r = r->next) {
+                r->used = 0;
+        }
+}
+
 // s8 ----------------------------------------------------------------------------------------------
 i32
 s8cmp(const s8 s1 PTR, const s8 s2 PTR) {
         if (s1->len != s2->len) {
                 return s1->len < s2->len ? -1 : 1;
         }
-        i32 cmp = memcmp(s1->data, s2->data, (size_t)s1->len);
-        return (cmp > 0) - (cmp < 0);
+        return memcmp(s1->data, s2->data, (size_t)s1->len);
 }
 
 inline bool

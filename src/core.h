@@ -139,6 +139,7 @@ typedef struct {
 void* arena_alloc_aligned(arena arena PTR, usize size, usize align, usize count);
 #define arena_alloc(...) CORE_NEWX(__VA_ARGS__, CORE_NEW3, CORE_NEW2, 0)(__VA_ARGS__)
 void arena_free(arena arena PTR);
+void arena_reset(arena arena PTR);
 
 // s8 ----------------------------------------------------------------------------------------------
 typedef struct {

@@ -12,39 +12,44 @@ TEST("arena_alloc") {
         *pusize = 19;
 }
 
+TEST("arena_reset") {
+        arena_reset(&a);
+        EXPECT(a.beg != a.end && a.beg->used == 0 && a.end->used == 0);
+}
+
 const s8* empty = s8("");
 const s8* hello = s8("Hello World!");
 
 TEST("s8cmp") {
-        EXPECT(0 == s8cmp(empty, empty));
-        EXPECT(-1 == s8cmp(empty, s8("\0")));
-        EXPECT(1 == s8cmp(hello, s8("Z")));
+        EXPECT(s8cmp(empty, empty) == 0);
+        EXPECT(s8cmp(empty, s8("\0")) < 0);
+        EXPECT(s8cmp(hello, s8("Z")) > 0);
 }
 
 TEST("s8starts_with") {
-        EXPECT(true == s8starts_with(empty, empty));
-        EXPECT(true == s8starts_with(hello, empty));
-        EXPECT(false == s8starts_with(hello, s8("hell")));
-        EXPECT(true == s8starts_with(hello, s8("Hello")));
+        EXPECT(s8starts_with(empty, empty) == true);
+        EXPECT(s8starts_with(hello, empty) == true);
+        EXPECT(s8starts_with(hello, s8("hell")) == false);
+        EXPECT(s8starts_with(hello, s8("Hello")) == true);
 }
 
 TEST("s8ends_with") {
-        EXPECT(true == s8ends_with(empty, empty));
-        EXPECT(true == s8ends_with(hello, empty));
-        EXPECT(false == s8ends_with(hello, s8("old")));
-        EXPECT(true == s8ends_with(hello, s8("World!")));
+        EXPECT(s8ends_with(empty, empty) == true);
+        EXPECT(s8ends_with(hello, empty) == true);
+        EXPECT(s8ends_with(hello, s8("old")) == false);
+        EXPECT(s8ends_with(hello, s8("World!")) == true);
 }
 
 TEST("s8find") {
-        EXPECT(-1 == s8find(empty, hello));
-        EXPECT(0 == s8find(hello, empty));
-        EXPECT(7 == s8find(hello, s8("or")));
+        EXPECT(s8find(empty, hello) == -1);
+        EXPECT(s8find(hello, empty) == 0);
+        EXPECT(s8find(hello, s8("or")) == 7);
 }
 
 TEST("s8count") {
-        EXPECT(0 == s8count(empty, hello));
-        EXPECT(12 == s8count(hello, empty));
-        EXPECT(3 == s8count(hello, s8("l")));
+        EXPECT(s8count(empty, hello) == 0);
+        EXPECT(s8count(hello, empty) == 12);
+        EXPECT(s8count(hello, s8("l")) == 3);
 }
 
 arena_free(&a);
