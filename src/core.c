@@ -1,6 +1,47 @@
 #include "core.h"
 
 // arena -------------------------------------------------------------------------------------------
+arena_region*
+new_region(usize capacity) {
+        abort_if(sizeof(arena_region) > USIZE_MAX - capacity);
+        arena_region* region = malloc(sizeof(arena_region) + capacity);
+        abort_if(region == NULL);
+        *region = (arena_region){.total = capacity};
+        return region;
+}
+
+void*
+arena_alloc_aligned(arena a PTR, usize size, usize align, usize count) {
+        assert(IS_POW2(align));
+        abort_if(size == 0 || count > USIZE_MAX / size);
+        usize capacity = size * count;
+        if (a->beg == NULL) {
+                assert(a->end == NULL);
+                a->beg = a->end = new_region(MAX(capacity, ARENA_REGION_CAPACITY));
+        }
+        arena_region* r;
+        for (r = a->beg;
+             r != NULL
+             && capacity > r->total - r->used - (-(uintptr_t)(r->data + r->used) & (align - 1));
+             r = r->next) {}
+
+        if (r == NULL) {
+                r = a->end = a->end->next = new_region(MAX(capacity, ARENA_REGION_CAPACITY));
+        }
+        usize padding = -(uintptr_t)(r->data + r->used) & (align - 1);
+        void* ptr = r->data + r->used + padding;
+        r->used += padding + capacity;
+        return ptr;
+}
+
+void
+arena_free(arena a PTR) {
+        for (arena_region *next, *r = a->beg; r != NULL; r = next) {
+                next = r->next;
+                free(r);
+        }
+        a->beg = a->end = NULL;
+}
 
 // s8 ----------------------------------------------------------------------------------------------
 i32
@@ -80,11 +121,3 @@ s8count(const s8 s PTR, const s8 sub PTR) {
         }
         return count;
 }
-
-// Internals ---------------------------------------------------------------------------------------
-#if defined(__SANITIZE_ADDRESS__)   || __has_feature(address_sanitizer)
-const char* __asan_default_options (void) { return "abort_on_error=true:check_initialization_order=true:strict_init_order=true:detect_stack_use_after_return=true:strict_string_checks=true"; }
-#endif
-#if defined(__SANITIZE_UNDEFINED__) || __has_feature(undefined_behavior_sanitizer)
-const char* __ubsan_default_options(void) { return "abort_on_error=true"; }
-#endif
