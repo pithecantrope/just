@@ -3,6 +3,7 @@
 // arena -------------------------------------------------------------------------------------------
 arena_region*
 new_region(usize capacity) {
+        capacity = MAX(capacity, ARENA_REGION_CAPACITY);
         abort_if(sizeof(arena_region) > USIZE_MAX - capacity);
         arena_region* region = malloc(sizeof(arena_region) + capacity);
         abort_if(region == NULL);
@@ -11,22 +12,23 @@ new_region(usize capacity) {
 }
 
 void*
-arena_alloc_aligned(arena a PTR, usize size, usize align, usize count) {
+arena_new(arena a PTR, usize size, usize align, usize count) {
         assert(IS_POW2(align));
         abort_if(size == 0 || count > USIZE_MAX / size);
         usize capacity = size * count;
-        if (a->beg == NULL) {
-                assert(a->end == NULL);
-                a->beg = a->end = new_region(MAX(capacity, ARENA_REGION_CAPACITY));
-        }
-        arena_region* r;
-        for (r = a->beg;
-             r != NULL
-             && capacity > r->total - r->used - (-(uintptr_t)(r->data + r->used) & (align - 1));
-             r = r->next) {}
-
+        arena_region* r = a->tail;
         if (r == NULL) {
-                r = a->end = a->end->next = new_region(MAX(capacity, ARENA_REGION_CAPACITY));
+                r = a->tail = new_region(capacity);
+        } else {
+                for (; r != NULL
+                       && capacity > r->total - r->used
+                                             - (-(uintptr_t)(r->data + r->used) & (align - 1));
+                     r = r->next) {}
+                if (r == NULL) {
+                        r = new_region(capacity);
+                        r->next = a->tail;
+                        a->tail = r;
+                }
         }
         usize padding = -(uintptr_t)(r->data + r->used) & (align - 1);
         void* ptr = r->data + r->used + padding;
@@ -36,16 +38,16 @@ arena_alloc_aligned(arena a PTR, usize size, usize align, usize count) {
 
 void
 arena_free(arena a PTR) {
-        for (arena_region *next, *r = a->beg; r != NULL; r = next) {
+        for (arena_region *next, *r = a->tail; r != NULL; r = next) {
                 next = r->next;
                 free(r);
         }
-        a->beg = a->end = NULL;
+        a->tail = NULL;
 }
 
 void
 arena_reset(arena a PTR) {
-        for (arena_region* r = a->beg; r != NULL; r = r->next) {
+        for (arena_region* r = a->tail; r != NULL; r = r->next) {
                 r->used = 0;
         }
 }

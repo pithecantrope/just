@@ -9,20 +9,21 @@
  * - Rich: `u8` (UTF-8 char), `arena` (region-based linear allocator), `s8` (UTF-8 string)
  * General:
  * - `IS_POW2(x)`, `MIN(a, b)`, `MAX(a, b)`, `ABS(x)`, `DIFF(a, b)`
- * - `abort_if(condition)`: Abort execution if `condition` is true
+ * - `abort_if(condition)`: Abort execution if condition is true
  * - `PTR`: Non-NULL pointer
  * - `INLINE`: Alias for `static inline`
  * - `TODO(...)`: Suppress unused arguments warnings
- * - `TEST(name)`: Define a test case with the name `name`
- * - `EXPECT(condition)`: Check if `condition` is true within a test case
+ * - `TEST(name)`: Define a test case with the name
+ * - `EXPECT(condition)`: Check if condition is true within a test case
  * `u8` (UTF-8 char):
  * - `is_digit`, `is_upper`, `is_lower`, `is_alpha`, `is_alnum`, `is_xdigit`
  * - `is_print`, `is_graph`, `is_blank`, `is_space`, `is_ascii`, `is_cntrl`, `is_punct`
  * - `to_upper`, `to_lower`, `to_ascii`
  * `arena` (linear allocator):
- * - `arena_alloc(arena, type[, count])`: allocate memory for `count` objects of a specified type
- * - `arena_alloc_aligned(arena, size, align, count)`: allocate with explicit alignment control
- * - `arena_free(arena)`: deallocate all memory in the arena
+ * - `new(arena, type[, count])`: Allocate memory for `count` objects of a specified type
+ * - `arena_new_aligned(arena, size, align, count)`: Allocate with explicit alignment control
+ * - `arena_free(arena)`: Deallocate all memory in the arena
+ * - `arena_reset(arena)`: Reset the arena for reuse (doesn't free any memory)
  * `s8` (UTF-8 string):
  * - `cmp(s1, s2)`, eq(s1, s2)
  * - `starts_with(s, prefix)`, `ends_with(s, suffix)`
@@ -133,11 +134,11 @@ struct arena_region {
 #endif // ARENA_REGION_CAPACITY
 
 typedef struct {
-        arena_region *beg, *end;
+        arena_region *tail;
 } arena;
 
-void* arena_alloc_aligned(arena arena PTR, usize size, usize align, usize count);
-#define arena_alloc(...) CORE_NEWX(__VA_ARGS__, CORE_NEW3, CORE_NEW2, 0)(__VA_ARGS__)
+void* arena_new(arena arena PTR, usize size, usize align, usize count);
+#define new(...) CORE_NEWX(__VA_ARGS__, CORE_NEW3, CORE_NEW2, 0)(__VA_ARGS__)
 void arena_free(arena arena PTR);
 void arena_reset(arena arena PTR);
 
@@ -166,7 +167,7 @@ isize s8count(const s8 s PTR, const s8 sub PTR);
 #define CORE_TODO_8(arg, ...) (void)arg
 
 #define CORE_NEWX(_1, _2, _3, NAME, ...) NAME
-#define CORE_NEW2(a, t)    (t*)arena_alloc_aligned(a, sizeof(t), alignof(t), 1)
-#define CORE_NEW3(a, t, n) (t*)arena_alloc_aligned(a, sizeof(t), alignof(t), n)
+#define CORE_NEW2(a, t)    (t*)arena_new(a, sizeof(t), alignof(t), 1)
+#define CORE_NEW3(a, t, n) (t*)arena_new(a, sizeof(t), alignof(t), n)
 
 #endif // CORE_H_

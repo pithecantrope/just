@@ -1,20 +1,20 @@
 #ifdef TESTS
 arena a = {0};
 
-TEST("arena_alloc") {
-        arena_alloc(&a, bool);
-        arena_alloc(&a, s8, 0);
-        EXPECT(a.beg == a.end && a.beg->used == sizeof(usize));
-        arena_alloc_aligned(&a, 8 + ARENA_REGION_CAPACITY, alignof(uintptr_t), 1);
-        EXPECT(a.beg != a.end);
-        usize* pusize = arena_alloc(&a, usize);
-        EXPECT(a.beg->used == 2 * sizeof(usize));
+TEST("arena_new") {
+        new (&a, bool);
+        new (&a, s8, 0);
+        EXPECT(a.tail->next == NULL && a.tail->used == sizeof(usize));
+        arena_new(&a, 8 + ARENA_REGION_CAPACITY, alignof(uintptr_t), 1);
+        EXPECT(a.tail->next != NULL);
+        usize* pusize = new (&a, usize);
+        EXPECT(a.tail->next->used == 2 * sizeof(usize));
         *pusize = 19;
 }
 
 TEST("arena_reset") {
         arena_reset(&a);
-        EXPECT(a.beg != a.end && a.beg->used == 0 && a.end->used == 0);
+        EXPECT(a.tail->next != NULL && a.tail->used == 0 && a.tail->next->used == 0);
 }
 
 const s8* empty = s8("");
