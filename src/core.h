@@ -20,8 +20,8 @@
  * - `is_print`, `is_graph`, `is_blank`, `is_space`, `is_ascii`, `is_cntrl`, `is_punct`
  * - `to_upper`, `to_lower`, `to_ascii`
  * `arena` (linear allocator):
- * - `new(arena, type[, count])`: Allocate memory for `count` objects of a specified type
- * - `arena_new_aligned(arena, size, align, count)`: Allocate with explicit alignment control
+ * - `alloc(arena, type[, count])`: Allocate memory for `count` objects of a specified type
+ * - `arena_alloc(arena, size, align, count)`: Allocate with explicit alignment control
  * - `arena_free(arena)`: Deallocate all memory in the arena
  * - `arena_reset(arena)`: Reset the arena for reuse (doesn't free any memory)
  * `s8` (UTF-8 string):
@@ -134,13 +134,20 @@ struct arena_region {
 #endif // ARENA_REGION_CAPACITY
 
 typedef struct {
-        arena_region *tail;
+        usize regions;
+        arena_region *head;
 } arena;
 
-void* arena_new(arena arena PTR, usize size, usize align, usize count);
-#define new(...) CORE_NEWX(__VA_ARGS__, CORE_NEW3, CORE_NEW2, 0)(__VA_ARGS__)
+void* arena_alloc(arena arena PTR, usize size, usize align, usize count);
+#define alloc(...) CORE_ALLOCX(__VA_ARGS__, CORE_ALLOC3, CORE_ALLOC2, 0)(__VA_ARGS__)
 void arena_free(arena arena PTR);
 void arena_reset(arena arena PTR);
+
+// typedef struct {
+//         byte* data;
+// } arena_savepoint;
+// arena_savepoint arena_save(arena arena PTR);
+// void arena_restore(arena arena PTR, arena_savepoint save PTR);
 
 // s8 ----------------------------------------------------------------------------------------------
 typedef struct {
@@ -166,8 +173,8 @@ isize s8count(const s8 s PTR, const s8 sub PTR);
 #define CORE_TODO_7(arg, ...) (void)arg, CORE_TODO_8 (__VA_ARGS__, 0)
 #define CORE_TODO_8(arg, ...) (void)arg
 
-#define CORE_NEWX(_1, _2, _3, NAME, ...) NAME
-#define CORE_NEW2(a, t)    (t*)arena_new(a, sizeof(t), alignof(t), 1)
-#define CORE_NEW3(a, t, n) (t*)arena_new(a, sizeof(t), alignof(t), n)
+#define CORE_ALLOCX(_1, _2, _3, NAME, ...) NAME
+#define CORE_ALLOC2(a, t)    (t*)arena_alloc(a, sizeof(t), alignof(t), 1)
+#define CORE_ALLOC3(a, t, n) (t*)arena_alloc(a, sizeof(t), alignof(t), n)
 
 #endif // CORE_H_

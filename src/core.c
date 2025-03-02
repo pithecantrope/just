@@ -1,56 +1,69 @@
 #include "core.h"
 
 // arena -------------------------------------------------------------------------------------------
-arena_region*
-new_region(usize capacity) {
+static arena_region*
+alloc_region(usize capacity) {
         capacity = MAX(capacity, ARENA_REGION_CAPACITY);
         abort_if(sizeof(arena_region) > USIZE_MAX - capacity);
-        arena_region* region = malloc(sizeof(arena_region) + capacity);
-        abort_if(region == NULL);
-        *region = (arena_region){.total = capacity};
-        return region;
+        arena_region* r = malloc(sizeof(arena_region) + capacity);
+        abort_if(r == NULL);
+        *r = (arena_region){.total = capacity};
+        return r;
+}
+
+static inline usize
+padding(const arena_region* r, usize align) {
+        return -(uintptr_t)(r->data + r->used) & (align - 1);
 }
 
 void*
-arena_new(arena a PTR, usize size, usize align, usize count) {
+arena_alloc(arena a PTR, usize size, usize align, usize count) {
         assert(IS_POW2(align));
         abort_if(size == 0 || count > USIZE_MAX / size);
         usize capacity = size * count;
-        arena_region* r = a->tail;
+        arena_region* r = a->head;
         if (r == NULL) {
-                r = a->tail = new_region(capacity);
+                r = a->head = alloc_region(capacity);
+                ++a->regions;
         } else {
-                for (; r != NULL
-                       && capacity > r->total - r->used
-                                             - (-(uintptr_t)(r->data + r->used) & (align - 1));
+                for (; r != NULL && capacity > r->total - r->used - padding(r, align);
                      r = r->next) {}
                 if (r == NULL) {
-                        r = new_region(capacity);
-                        r->next = a->tail;
-                        a->tail = r;
+                        r = alloc_region(capacity);
+                        r->next = a->head;
+                        a->head = r;
+                        ++a->regions;
                 }
         }
-        usize padding = -(uintptr_t)(r->data + r->used) & (align - 1);
-        void* ptr = r->data + r->used + padding;
-        r->used += padding + capacity;
+        usize pad = padding(r, align);
+        void* ptr = r->data + r->used + pad;
+        r->used += pad + capacity;
         return ptr;
 }
 
 void
 arena_free(arena a PTR) {
-        for (arena_region *next, *r = a->tail; r != NULL; r = next) {
+        for (arena_region *next, *r = a->head; r != NULL; r = next) {
                 next = r->next;
                 free(r);
         }
-        a->tail = NULL;
+        *a = (arena){0};
 }
 
 void
 arena_reset(arena a PTR) {
-        for (arena_region* r = a->tail; r != NULL; r = r->next) {
+        for (arena_region* r = a->head; r != NULL; r = r->next) {
                 r->used = 0;
         }
 }
+
+// arena_savepoint
+// arena_save(arena a PTR) {
+//         arena_savepoint save = {.data = data, .regions = regions};
+//         return save;
+// }
+
+// void arena_restore(arena a PTR, arena_savepoint save PTR);
 
 // s8 ----------------------------------------------------------------------------------------------
 i32
