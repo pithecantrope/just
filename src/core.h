@@ -28,6 +28,7 @@
  * - `cmp(s1, s2)`, `eq(s1, s2)`
  * - `starts_with(s, prefix)`, `ends_with(s, suffix)`
  * - `find(s, sub)`, `count(s, sub)`
+ * - `s8lower(s)`, `s8upper(s)`, `s8title(s)`, `s8swapcase(s)`, `s8capitalize(s)`
  */
 
 #ifndef CORE_H_
@@ -118,9 +119,9 @@ INLINE bool u8is_space (u8 c) { return u8is_blank(c) || c == '\r' || c == '\n' |
 INLINE bool u8is_ascii (u8 c) { return c <= 127; }
 INLINE bool u8is_cntrl (u8 c) { return c < ' ' || c == 127; }
 INLINE bool u8is_punct (u8 c) { return u8is_graph(c) && !u8is_alnum(c); }
-INLINE u8   u8to_upper (u8 c) { return u8is_lower(c) ? c - ('a' - 'A') : c; }
-INLINE u8   u8to_lower (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
-INLINE u8   u8to_ascii (u8 c) { return c & 127; }
+INLINE u8   u8upper    (u8 c) { return u8is_lower(c) ? c - ('a' - 'A') : c; }
+INLINE u8   u8lower    (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
+INLINE u8   u8swapcase (u8 c) { return u8is_upper(c) ? u8lower(c) : (u8is_lower(c) ? u8upper(c) : c); }
 
 // arena -------------------------------------------------------------------------------------------
 typedef struct arena_region arena_region;
@@ -158,11 +159,31 @@ typedef struct {
 } s8;
 #define s8(s) &(s8){.data = (u8*)(s), .len = (isize)(sizeof(s) - 1)}
 
+INLINE bool s8is_digit  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_digit (s->data[i])) return false; } return true; }
+INLINE bool s8is_upper  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_upper (s->data[i])) return false; } return true; }
+INLINE bool s8is_lower  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_lower (s->data[i])) return false; } return true; }
+INLINE bool s8is_print  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_print (s->data[i])) return false; } return true; }
+INLINE bool s8is_graph  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_graph (s->data[i])) return false; } return true; }
+INLINE bool s8is_alpha  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_alpha (s->data[i])) return false; } return true; }
+INLINE bool s8is_alnum  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_alnum (s->data[i])) return false; } return true; }
+INLINE bool s8is_xdigit (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_xdigit(s->data[i])) return false; } return true; }
+INLINE bool s8is_blank  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_blank (s->data[i])) return false; } return true; }
+INLINE bool s8is_space  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_space (s->data[i])) return false; } return true; }
+INLINE bool s8is_ascii  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_ascii (s->data[i])) return false; } return true; }
+INLINE bool s8is_cntrl  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_cntrl (s->data[i])) return false; } return true; }
+INLINE bool s8is_punct  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_punct (s->data[i])) return false; } return true; }
+       bool s8is_title  (const s8 s PTR);
+INLINE s8*  s8upper     (s8 s PTR) { for (isize i = 0; i < s->len; ++i) { s->data[i] = u8upper   (s->data[i]); } return s; }
+INLINE s8*  s8lower     (s8 s PTR) { for (isize i = 0; i < s->len; ++i) { s->data[i] = u8lower   (s->data[i]); } return s; }
+INLINE s8*  s8swapcase  (s8 s PTR) { for (isize i = 0; i < s->len; ++i) { s->data[i] = u8swapcase(s->data[i]); } return s; }
+INLINE s8*  s8capitalize(s8 s PTR) { s->data[0] = u8upper(s->data[0]); for (isize i = 1; i < s->len; ++i) { s->data[i] = u8lower(s->data[i]); } return s; }
+       s8*  s8title     (s8 s PTR);
+
 i32   s8cmp(const s8 s1 PTR, const s8 s2 PTR);
-bool  s8eq(const s8 s1 PTR, const s8 s2 PTR);
+bool  s8eq (const s8 s1 PTR, const s8 s2 PTR);
 bool  s8starts_with(const s8 s PTR, const s8 prefix PTR);
-bool  s8ends_with(const s8 s PTR, const s8 suffix PTR);
-isize s8find(const s8 s PTR, const s8 sub PTR);
+bool  s8ends_with  (const s8 s PTR, const s8 suffix PTR);
+isize s8find (const s8 s PTR, const s8 sub PTR);
 isize s8count(const s8 s PTR, const s8 sub PTR);
 
 // Internals ---------------------------------------------------------------------------------------

@@ -91,6 +91,17 @@ arena_restore(arena_savepoint save PTR) {
 }
 
 // s8 ----------------------------------------------------------------------------------------------
+bool
+s8is_title(const s8 s PTR) {
+        TODO(s);
+        return true;
+}
+
+s8*
+s8title(s8 s PTR) {
+        return s;
+}
+
 i32
 s8cmp(const s8 s1 PTR, const s8 s2 PTR) {
         if (s1->len != s2->len) {
