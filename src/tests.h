@@ -1,5 +1,13 @@
 #ifdef TESTS
 arena a = {0};
+const s8* empty = s8("");
+const s8* hello = s8("Hello World!");
+
+TEST("arena_save") {
+        arena_savepoint save = arena_save(&a);
+        arena_restore(&save);
+        EXPECT(a.regions == 0 && a.head == NULL);
+}
 
 TEST("arena_alloc") {
         alloc(&a, bool);
@@ -12,13 +20,19 @@ TEST("arena_alloc") {
         *pusize = 19;
 }
 
+TEST("arena_restore") {
+        usize before = a.head->next->used;
+        arena_savepoint s = arena_save(&a);
+        s8* ps = alloc(&a, s8);
+        *ps = *hello;
+        arena_restore(&s);
+        EXPECT(before == a.head->next->used);
+}
+
 TEST("arena_reset") {
         arena_reset(&a);
         EXPECT(a.regions == 2 && a.head->used == 0 && a.head->next->used == 0);
 }
-
-const s8* empty = s8("");
-const s8* hello = s8("Hello World!");
 
 TEST("s8cmp") {
         EXPECT(s8cmp(empty, empty) == 0);
@@ -52,7 +66,10 @@ TEST("s8count") {
         EXPECT(s8count(hello, s8("l")) == 3);
 }
 
-arena_free(&a);
+TEST("arena_free") {
+        arena_free(&a);
+        EXPECT(a.regions == 0);
+}
 #else
 // IWYU pragma: begin_keep
 #include "core.h"

@@ -23,9 +23,9 @@
  * - `alloc(arena, type[, count])`: Allocate memory for `count` objects of a specified type
  * - `arena_alloc(arena, size, align, count)`: Allocate with explicit alignment control
  * - `arena_free(arena)`: Deallocate all memory in the arena
- * - `arena_reset(arena)`: Reset the arena for reuse (doesn't free any memory)
+ * - `arena_reset(arena)`: Reset the arena for reuse
  * `s8` (UTF-8 string):
- * - `cmp(s1, s2)`, eq(s1, s2)
+ * - `cmp(s1, s2)`, `eq(s1, s2)`
  * - `starts_with(s, prefix)`, `ends_with(s, suffix)`
  * - `find(s, sub)`, `count(s, sub)`
  */
@@ -73,7 +73,7 @@ typedef size_t    usize;
 #define PTR [static 1]
 #define INLINE static inline
 #define TODO(...) (CORE_TODO_1(__VA_ARGS__, 0))
-#if 0
+#if 0   // Example:
 // tests.h:
         #ifdef TESTS
         TEST("true") {
@@ -114,7 +114,7 @@ INLINE bool u8is_alpha (u8 c) { return u8is_upper(c) || u8is_lower(c); }
 INLINE bool u8is_alnum (u8 c) { return u8is_digit(c) || u8is_alpha(c); }
 INLINE bool u8is_xdigit(u8 c) { return u8is_digit(c) || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'); }
 INLINE bool u8is_blank (u8 c) { return c == ' ' || c == '\t'; }
-INLINE bool u8is_space (u8 c) { return u8is_blank(c) || c == '\r' || c == '\n' || (c == '\f' || c == '\v'); }
+INLINE bool u8is_space (u8 c) { return u8is_blank(c) || c == '\r' || c == '\n' || c == '\f' || c == '\v'; }
 INLINE bool u8is_ascii (u8 c) { return c <= 127; }
 INLINE bool u8is_cntrl (u8 c) { return c < ' ' || c == 127; }
 INLINE bool u8is_punct (u8 c) { return u8is_graph(c) && !u8is_alnum(c); }
@@ -135,7 +135,7 @@ struct arena_region {
 
 typedef struct {
         usize regions;
-        arena_region *head;
+        arena_region* head;
 } arena;
 
 void* arena_alloc(arena arena PTR, usize size, usize align, usize count);
@@ -143,11 +143,13 @@ void* arena_alloc(arena arena PTR, usize size, usize align, usize count);
 void arena_free(arena arena PTR);
 void arena_reset(arena arena PTR);
 
-// typedef struct {
-//         byte* data;
-// } arena_savepoint;
-// arena_savepoint arena_save(arena arena PTR);
-// void arena_restore(arena arena PTR, arena_savepoint save PTR);
+typedef struct {
+        arena* arena;
+        usize regions;
+        usize* ptr;
+} arena_savepoint;
+arena_savepoint arena_save(arena arena PTR);
+void arena_restore(arena_savepoint save PTR);
 
 // s8 ----------------------------------------------------------------------------------------------
 typedef struct {

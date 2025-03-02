@@ -23,16 +23,16 @@ arena_alloc(arena a PTR, usize size, usize align, usize count) {
         usize capacity = size * count;
         arena_region* r = a->head;
         if (r == NULL) {
-                r = a->head = alloc_region(capacity);
                 ++a->regions;
+                r = a->head = alloc_region(capacity);
         } else {
                 for (; r != NULL && capacity > r->total - r->used - padding(r, align);
                      r = r->next) {}
                 if (r == NULL) {
+                        ++a->regions;
                         r = alloc_region(capacity);
                         r->next = a->head;
                         a->head = r;
-                        ++a->regions;
                 }
         }
         usize pad = padding(r, align);
@@ -57,13 +57,38 @@ arena_reset(arena a PTR) {
         }
 }
 
-// arena_savepoint
-// arena_save(arena a PTR) {
-//         arena_savepoint save = {.data = data, .regions = regions};
-//         return save;
-// }
+arena_savepoint
+arena_save(arena a PTR) {
+        if (a->regions == 0) {
+                assert(a->head == NULL);
+                return (arena_savepoint){0};
+        }
+        usize* ptr = malloc(sizeof(usize) * a->regions);
+        abort_if(ptr == NULL);
+        usize* p = ptr;
+        for (arena_region* r = a->head; r != NULL; r = r->next) {
+                *(p++) = r->used;
+        }
+        return (arena_savepoint){.arena = a, .regions = a->regions, .ptr = ptr};
+}
 
-// void arena_restore(arena a PTR, arena_savepoint save PTR);
+void
+arena_restore(arena_savepoint save PTR) {
+        if (save->arena == NULL) {
+                assert(save->regions == 0 && save->ptr == NULL);
+                return;
+        }
+        arena_region* r = save->arena->head;
+        for (usize i = 0; i < save->arena->regions - save->regions; ++i, r = r->next) {
+                r->used = 0;
+        }
+        usize* p = save->ptr;
+        for (; r != NULL; r = r->next) {
+                r->used = *(p++);
+        }
+        free(save->ptr);
+        *save = (arena_savepoint){0};
+}
 
 // s8 ----------------------------------------------------------------------------------------------
 i32
