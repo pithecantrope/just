@@ -45,6 +45,8 @@
 #include <string.h>
 
 typedef char      byte;
+#define BYTE_MIN  CHAR_MIN
+#define BYTE_MAX  CHAR_MAX
 typedef int8_t    i8;
 typedef uint8_t   u8;
 typedef int16_t   i16;
@@ -104,7 +106,6 @@ typedef size_t    usize;
 #define EXPECT(condition) if (!(condition)) printf("FAIL: %s:%d: Test `%s':\n\tCondition: `%s'\n", __FILE__, __LINE__, TEST, #condition)
 
 // u8 ----------------------------------------------------------------------------------------------
-#define U8SIZE 8
 #define U8ALPHABET 256
 INLINE bool u8is_digit (u8 c) { return '0' <= c && c <= '9'; }
 INLINE bool u8is_upper (u8 c) { return 'A' <= c && c <= 'Z'; }
@@ -127,30 +128,31 @@ INLINE u8   u8swapcase (u8 c) { return u8is_upper(c) ? u8lower(c) : (u8is_lower(
 typedef struct arena_region arena_region;
 struct arena_region {
         arena_region* next;
-        usize used, total;
+        u32 used, total;
         byte data[];
 };
 #ifndef ARENA_REGION_CAPACITY
-#define ARENA_REGION_CAPACITY 8192
+#define ARENA_REGION_CAPACITY 65536
 #endif // ARENA_REGION_CAPACITY
+static_assert(1024 <= ARENA_REGION_CAPACITY && ARENA_REGION_CAPACITY < UINT32_MAX, "1024 <= ARENA_REGION_CAPACITY < UINT32_MAX");
 
 typedef struct {
         usize regions;
-        arena_region* head;
+        arena_region *head, *open, *tail;
 } arena;
 
-void* arena_alloc(arena arena PTR, usize size, usize align, usize count);
+void* arena_alloc(arena arena PTR, u32 size, u32 align, u32 count);
 #define alloc(...) CORE_ALLOCX(__VA_ARGS__, CORE_ALLOC3, CORE_ALLOC2, 0)(__VA_ARGS__)
-void arena_free(arena arena PTR);
+void arena_free (arena arena PTR);
 void arena_reset(arena arena PTR);
 
-typedef struct {
-        arena* arena;
-        usize regions;
-        usize* ptr;
-} arena_savepoint;
-arena_savepoint arena_save(arena arena PTR);
-void arena_restore(arena_savepoint save PTR);
+// typedef struct {
+//         arena* arena;
+//         usize regions;
+//         usize* useds;
+// } arena_savepoint;
+// arena_savepoint arena_save(arena arena PTR);
+// void arena_restore(arena_savepoint save PTR);
 
 // s8 ----------------------------------------------------------------------------------------------
 typedef struct {
