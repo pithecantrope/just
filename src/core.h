@@ -6,9 +6,10 @@
  * @details
  * Types:
  * - Basic: `byte`, `i8`, `u8`, `i16`, `u16`, `i32`, `u32`, `i64`, `u64`, `f32`, `f64`, `isize`, `usize`
- * - Rich: `u8` (UTF-8 char), `arena` (region-based linear allocator), `s8` (UTF-8 string)
+ * - Rich: `u8` (UTF-8 char), `arena` (linear allocator), `s8` (UTF-8 string)
  * General:
  * - `IS_POW2(x)`, `MIN(a, b)`, `MAX(a, b)`, `ABS(x)`, `DIFF(a, b)`
+ * - `IS_IN(min, x, max)` 
  * - `abort_if(condition)`: Abort execution if condition is true
  * - `PTR`: Non-NULL pointer
  * - `INLINE`: Alias for `static inline`
@@ -20,10 +21,10 @@
  * - `is_print`, `is_graph`, `is_blank`, `is_space`, `is_ascii`, `is_cntrl`, `is_punct`
  * - `to_upper`, `to_lower`, `to_ascii`
  * `arena` (linear allocator):
- * - `alloc(arena, type[, count])`: Allocate memory for `count` objects of a specified type
+ * - `arena_new(capacity)`, `arena_reset(arena)`, `arena_delete(arena)`: Allocate/renew/free the arena
  * - `arena_alloc(arena, size, align, count)`: Allocate with explicit alignment control
- * - `arena_free(arena)`: Deallocate all memory in the arena
- * - `arena_reset(arena)`: Reset the arena for reuse
+ * - `alloc(arena, type[, count])`: Allocate memory for `count` objects of a specified type
+ * - `arena_save(arena)`, `arena_restore(save)`: Capture/recover the state of arena
  * `s8` (UTF-8 string):
  * - `cmp(s1, s2)`, `eq(s1, s2)`
  * - `starts_with(s, prefix)`, `ends_with(s, suffix)`
@@ -126,36 +127,23 @@ INLINE u8   u8lower    (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
 INLINE u8   u8swapcase (u8 c) { return u8is_upper(c) ? u8lower(c) : (u8is_lower(c) ? u8upper(c) : c); }
 
 // arena -------------------------------------------------------------------------------------------
-#ifndef ARENA_REGION_CAPACITY
-#define ARENA_REGION_CAPACITY 65536
-#endif // ARENA_REGION_CAPACITY
-typedef struct arena_region arena_region;
-struct arena_region {
-        arena_region* next;
-        u32 used, cap;
-        byte data[];
-};
-
-#ifndef ARENA_VACANT_REGIONS
-#define ARENA_VACANT_REGIONS 8
-#endif // ARENA_VACANT_REGIONS
 typedef struct {
-        arena_region *head, *tail;
-        u32 regions, vacants;
-        arena_region* vacant[ARENA_VACANT_REGIONS];
+        usize used, cap;
+        byte data[];
 } arena;
 
-void* arena_alloc(arena arena PTR, u32 size, u32 align, u32 count);
+arena* arena_new(usize capacity);
+void* arena_alloc(arena* arena, usize size, usize align, usize count);
 #define alloc(...) CORE_ALLOCX(__VA_ARGS__, CORE_ALLOC3, CORE_ALLOC2, 0)(__VA_ARGS__)
-void arena_free (arena arena PTR);
-void arena_reset(arena arena PTR);
+INLINE void arena_reset (arena* arena) { arena->used = 0; }
+INLINE void arena_delete(arena* arena) { free(arena); }
 
-// typedef struct {
-//         arena* arena;
-//         usize regions;
-// } arena_savepoint;
-// arena_savepoint arena_save(arena arena PTR);
-// void arena_restore(arena_savepoint save PTR);
+typedef struct {
+        arena* arena;
+        usize used;
+} arena_savepoint;
+INLINE arena_savepoint arena_save(arena* arena) { return (arena_savepoint){.arena = arena, .used = arena->used}; }
+INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
 // s8 ----------------------------------------------------------------------------------------------
 typedef struct {
