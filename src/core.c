@@ -2,42 +2,54 @@
 
 // arena -------------------------------------------------------------------------------------------
 static arena_region*
-alloc_region(usize capacity) {
-        capacity = MAX(capacity, ARENA_REGION_CAPACITY);
-        abort_if(sizeof(arena_region) > USIZE_MAX - capacity);
+region(arena* a, u32 capacity) {
+        capacity += alignof(max_align_t);
+        bool vacant = true;
+        if (capacity > ARENA_REGION_CAPACITY) {
+                vacant = false;
+        } else {
+                capacity = ARENA_REGION_CAPACITY;
+                abort_if(a->vacants == ARENA_VACANT_REGIONS);
+        }
         arena_region* r = malloc(sizeof(arena_region) + capacity);
         abort_if(r == NULL);
-        *r = (arena_region){.total = capacity};
+        *r = (arena_region){.cap = capacity};
+        ++a->regions;
+        if (vacant) {
+                a->vacant[a->vacants++] = r;
+        }
         return r;
 }
 
-static inline usize
-padding(const arena_region* r, usize align) {
-        return -(uintptr_t)(r->data + r->used) & (align - 1);
-}
-
 void*
-arena_alloc(arena a PTR, usize size, usize align, usize count) {
+arena_alloc(arena a PTR, u32 size, u32 align, u32 count) {
         assert(IS_POW2(align));
-        abort_if(size == 0 || count > USIZE_MAX / size);
-        usize capacity = size * count;
-        arena_region* r = a->head;
-        if (r == NULL) {
-                ++a->regions;
-                r = a->head = alloc_region(capacity);
+        abort_if(size == 0 || count > (UINT32_MAX - alignof(max_align_t)) / size);
+        u32 capacity = size * count;
+        arena_region* r = NULL;
+        if (a->regions == 0) {
+                assert(a->head == NULL && a->tail == NULL && a->vacants == 0);
+                r = a->head = a->tail = region(a, capacity);
         } else {
-                for (; r != NULL && capacity > r->total - r->used - padding(r, align);
-                     r = r->next) {}
-                if (r == NULL) {
-                        ++a->regions;
-                        r = alloc_region(capacity);
-                        r->next = a->head;
-                        a->head = r;
+                for (u32 i = 0; i < a->vacants; ++i) {
+                        r = a->vacant[i];
+                        u32 l = r->cap - r->used - (-(uintptr_t)(r->data + r->used) & (align - 1));
+                        if (l < capacity) {
+                                continue;
+                        }
+                        if (l - capacity < alignof(max_align_t)) {
+                                for (u32 j = i; j < a->vacants - 1; ++j) {
+                                        a->vacant[j] = a->vacant[j + 1];
+                                }
+                                --a->vacants;
+                        }
+                        break;
                 }
+                r = (r == NULL) ? (a->tail = a->tail->next = region(a, capacity)) : r;
         }
-        usize pad = padding(r, align);
-        void* ptr = r->data + r->used + pad;
-        r->used += pad + capacity;
+        u32 padding = -(uintptr_t)(r->data + r->used) & (align - 1);
+        void* ptr = r->data + r->used + padding;
+        r->used += padding + capacity;
         return ptr;
 }
 
@@ -50,45 +62,22 @@ arena_free(arena a PTR) {
         *a = (arena){0};
 }
 
-void
+inline void
 arena_reset(arena a PTR) {
         for (arena_region* r = a->head; r != NULL; r = r->next) {
                 r->used = 0;
         }
 }
 
-arena_savepoint
-arena_save(arena a PTR) {
-        if (a->regions == 0) {
-                assert(a->head == NULL);
-                return (arena_savepoint){0};
-        }
-        usize* ptr = malloc(sizeof(usize) * a->regions);
-        abort_if(ptr == NULL);
-        usize* p = ptr;
-        for (arena_region* r = a->head; r != NULL; r = r->next) {
-                *(p++) = r->used;
-        }
-        return (arena_savepoint){.arena = a, .regions = a->regions, .ptr = ptr};
-}
+// arena_savepoint
+// arena_save(arena a PTR) {
+//         return (arena_savepoint){
+//                 .arena = a, .regions = a->regions};
+// }
 
-void
-arena_restore(arena_savepoint save PTR) {
-        if (save->arena == NULL) {
-                assert(save->regions == 0 && save->ptr == NULL);
-                return;
-        }
-        arena_region* r = save->arena->head;
-        for (usize i = 0; i < save->arena->regions - save->regions; ++i, r = r->next) {
-                r->used = 0;
-        }
-        usize* p = save->ptr;
-        for (; r != NULL; r = r->next) {
-                r->used = *(p++);
-        }
-        free(save->ptr);
-        *save = (arena_savepoint){0};
-}
+// void
+// arena_restore(arena_savepoint save PTR) {
+// }
 
 // s8 ----------------------------------------------------------------------------------------------
 bool
@@ -136,7 +125,7 @@ s8find(const s8 s PTR, const s8 sub PTR) {
                 return 0;
         }
         isize last_occ[U8ALPHABET];
-        memset(last_occ, -1, U8SIZE * U8ALPHABET);
+        memset(last_occ, -1, sizeof(isize) * U8ALPHABET);
         for (isize i = 0; i < sub->len - 1; ++i) {
                 last_occ[sub->data[i]] = i;
         }
@@ -162,7 +151,7 @@ s8count(const s8 s PTR, const s8 sub PTR) {
         }
         isize count = 0;
         isize last_occ[U8ALPHABET];
-        memset(last_occ, -1, U8SIZE * U8ALPHABET);
+        memset(last_occ, -1, sizeof(isize) * U8ALPHABET);
         for (isize i = 0; i < sub->len - 1; ++i) {
                 last_occ[sub->data[i]] = i;
         }

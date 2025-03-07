@@ -68,6 +68,7 @@ typedef size_t    usize;
 #define USIZE_MAX SIZE_MAX
 
 #define IS_POW2(x) (((x) > 0) && (((x) & ((x) - 1)) == 0))
+#define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
 #define MAX(a, b)  ((a) > (b) ? (a) : (b))
 #define ABS(x)     (((x) > 0) ? (x) : -(x))
@@ -107,14 +108,14 @@ typedef size_t    usize;
 
 // u8 ----------------------------------------------------------------------------------------------
 #define U8ALPHABET 256
-INLINE bool u8is_digit (u8 c) { return '0' <= c && c <= '9'; }
-INLINE bool u8is_upper (u8 c) { return 'A' <= c && c <= 'Z'; }
-INLINE bool u8is_lower (u8 c) { return 'a' <= c && c <= 'z'; }
-INLINE bool u8is_print (u8 c) { return ' ' <= c && c <= '~'; }
-INLINE bool u8is_graph (u8 c) { return ' ' + 1 <= c && c <= '~'; }
+INLINE bool u8is_digit (u8 c) { return IS_IN('0', c, '9'); }
+INLINE bool u8is_upper (u8 c) { return IS_IN('A', c, 'Z'); }
+INLINE bool u8is_lower (u8 c) { return IS_IN('a', c, 'z'); }
+INLINE bool u8is_print (u8 c) { return IS_IN(' ', c, '~'); }
+INLINE bool u8is_graph (u8 c) { return IS_IN(' ' + 1, c, '~'); }
 INLINE bool u8is_alpha (u8 c) { return u8is_upper(c) || u8is_lower(c); }
 INLINE bool u8is_alnum (u8 c) { return u8is_digit(c) || u8is_alpha(c); }
-INLINE bool u8is_xdigit(u8 c) { return u8is_digit(c) || ('A' <= c && c <= 'F') || ('a' <= c && c <= 'f'); }
+INLINE bool u8is_xdigit(u8 c) { return u8is_digit(c) || IS_IN('A', c, 'F') || IS_IN('a', c, 'f'); }
 INLINE bool u8is_blank (u8 c) { return c == ' ' || c == '\t'; }
 INLINE bool u8is_space (u8 c) { return u8is_blank(c) || c == '\r' || c == '\n' || c == '\f' || c == '\v'; }
 INLINE bool u8is_ascii (u8 c) { return c <= 127; }
@@ -125,20 +126,23 @@ INLINE u8   u8lower    (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
 INLINE u8   u8swapcase (u8 c) { return u8is_upper(c) ? u8lower(c) : (u8is_lower(c) ? u8upper(c) : c); }
 
 // arena -------------------------------------------------------------------------------------------
-typedef struct arena_region arena_region;
-struct arena_region {
-        arena_region* next;
-        u32 used, total;
-        byte data[];
-};
 #ifndef ARENA_REGION_CAPACITY
 #define ARENA_REGION_CAPACITY 65536
 #endif // ARENA_REGION_CAPACITY
-static_assert(1024 <= ARENA_REGION_CAPACITY && ARENA_REGION_CAPACITY < UINT32_MAX, "1024 <= ARENA_REGION_CAPACITY < UINT32_MAX");
+typedef struct arena_region arena_region;
+struct arena_region {
+        arena_region* next;
+        u32 used, cap;
+        byte data[];
+};
 
+#ifndef ARENA_VACANT_REGIONS
+#define ARENA_VACANT_REGIONS 8
+#endif // ARENA_VACANT_REGIONS
 typedef struct {
-        usize regions;
-        arena_region *head, *open, *tail;
+        arena_region *head, *tail;
+        u32 regions, vacants;
+        arena_region* vacant[ARENA_VACANT_REGIONS];
 } arena;
 
 void* arena_alloc(arena arena PTR, u32 size, u32 align, u32 count);
@@ -149,7 +153,6 @@ void arena_reset(arena arena PTR);
 // typedef struct {
 //         arena* arena;
 //         usize regions;
-//         usize* useds;
 // } arena_savepoint;
 // arena_savepoint arena_save(arena arena PTR);
 // void arena_restore(arena_savepoint save PTR);
