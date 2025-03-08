@@ -78,6 +78,20 @@ s8cmp(const s8 s1 PTR, const s8 s2 PTR) {
         return (cmp > 0) - (cmp < 0);
 }
 
+int
+s8icmp(const s8 s1 PTR, const s8 s2 PTR) {
+        if (s1->len != s2->len) {
+                return s1->len < s2->len ? -1 : 1;
+        }
+        for (isize i = 0; i < s1->len; ++i) {
+                u8 u1 = u8upper(s1->data[i]), u2 = u8upper(s2->data[i]);
+                if (u1 != u2) {
+                        return u1 < u2 ? -1 : 1;
+                }
+        }
+        return 0;
+}
+
 // Horspool algorithm
 isize
 s8find(const s8 s PTR, const s8 sub PTR) {

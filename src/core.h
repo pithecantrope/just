@@ -179,8 +179,10 @@ INLINE s8*  s8swapcase  (s8 s PTR) { for (isize i = 0; i < s->len; ++i) { s->dat
        s8*  s8capitalize(s8 s PTR);
        s8*  s8title     (s8 s PTR);
 
-int   s8cmp(const s8 s1 PTR, const s8 s2 PTR);
-INLINE bool s8eq(const s8 s1 PTR, const s8 s2 PTR) { return s8cmp(s1, s2) == 0; }
+int   s8cmp (const s8 s1 PTR, const s8 s2 PTR);
+int   s8icmp(const s8 s1 PTR, const s8 s2 PTR);
+INLINE bool s8eq (const s8 s1 PTR, const s8 s2 PTR) { return  s8cmp(s1, s2) == 0; }
+INLINE bool s8ieq(const s8 s1 PTR, const s8 s2 PTR) { return s8icmp(s1, s2) == 0; }
 INLINE bool s8starts_with(const s8 s PTR, const s8 prefix PTR) { return (s->len >= prefix->len) && memcmp(s->data, prefix->data, (size_t)prefix->len) == 0; }
 INLINE bool s8ends_with  (const s8 s PTR, const s8 suffix PTR) { return (s->len >= suffix->len) && memcmp(s->data + (s->len - suffix->len), suffix->data, (size_t)suffix->len) == 0; }
 isize s8find (const s8 s PTR, const s8 sub PTR);
