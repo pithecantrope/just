@@ -39,6 +39,7 @@
 #define CORE_H_
 
 #include <assert.h>
+#include <inttypes.h>
 #include <float.h>
 #include <stdalign.h>
 #include <stdbool.h>
@@ -154,10 +155,9 @@ typedef struct {
         isize len;
 } s8;
 #define s8(s) &(s8){.data = (u8*)(s), .len = (isize)(sizeof(s) - 1)}
-
-// TODO: s8(a, s) should call s8cstr
-s8* s8cstr(arena* a, const char data PTR, size_t len);
-s8* s8copy(arena* a, const s8 s PTR);
+#define S8(a, s) s8cstr(a, s, sizeof(s) - 1)
+#define PRIs8 "%.*s"
+#define FMTs8(s) (int)(s)->len, (s)->data
 
 INLINE bool s8is_digit  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_digit (s->data[i])) return false; } return true; }
 INLINE bool s8is_upper  (const s8 s PTR) { for (isize i = 0; i < s->len; ++i) { if (!u8is_upper (s->data[i])) return false; } return true; }
@@ -185,9 +185,16 @@ INLINE bool s8eq (const s8 s1 PTR, const s8 s2 PTR) { return  s8cmp(s1, s2) == 0
 INLINE bool s8ieq(const s8 s1 PTR, const s8 s2 PTR) { return s8icmp(s1, s2) == 0; }
 INLINE bool s8starts_with(const s8 s PTR, const s8 prefix PTR) { return (s->len >= prefix->len) && memcmp(s->data, prefix->data, (size_t)prefix->len) == 0; }
 INLINE bool s8ends_with  (const s8 s PTR, const s8 suffix PTR) { return (s->len >= suffix->len) && memcmp(s->data + (s->len - suffix->len), suffix->data, (size_t)suffix->len) == 0; }
+
 isize s8find (const s8 s PTR, const s8 sub PTR);
 isize s8rfind(const s8 s PTR, const s8 sub PTR);
 isize s8count(const s8 s PTR, const s8 sub PTR);
+
+s8* s8cstr  (arena* a, const char data PTR, size_t len);
+s8* s8copy  (arena* a, const s8 s PTR);
+s8* s8slice (arena* a, const s8 s PTR, isize start, isize step, isize stop);
+s8* s8cat   (arena* a, const s8 s1 PTR, const s8 s2 PTR);
+s8* s8repeat(arena* a, const s8 s PTR, isize n);
 
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)

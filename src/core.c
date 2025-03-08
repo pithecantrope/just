@@ -65,7 +65,7 @@ s8*
 s8copy(arena* a, const s8 s PTR) {
         s8* copy = alloc(a, s8);
         *copy = (s8){.data = alloc(a, u8, (size_t)s->len), .len = s->len};
-        memcpy(copy->data, s, sizeof(*s->data) * (size_t)s->len);
+        memcpy(copy->data, s->data, sizeof(*s->data) * (size_t)s->len);
         return copy;
 }
 

@@ -1,7 +1,5 @@
 #ifdef TESTS
 arena* a = arena_new(1024);
-const s8* empty = s8("");
-const s8* hello = s8("Hello World!");
 
 // arena -------------------------------------------------------------------------------------------
 TEST("arena") {
@@ -27,31 +25,35 @@ TEST("arena_savepoint") {
 }
 
 // s8 ----------------------------------------------------------------------------------------------
+const s8* empty = s8("");
+const s8* hello = s8("hello world!");
+const s8* Hello = s8("Hello World!");
+const s8* l = s8("l");
+const s8* W = s8("W");
+
 TEST("s8cmp") {
         EXPECT(s8cmp(empty, empty) == 0);
         EXPECT(s8cmp(empty, s8("\0")) == -1);
-        EXPECT(s8cmp(hello, s8("Z")) == 1);
+        EXPECT(s8cmp(l, W) == 1);
 }
 
-// TEST("s8capitalize") {
-//         s8* h = s8cstr(a, "hello world!", 12);
-//         s8capitalize(h);
-//         printf("%.*s\n", (int)h->len, h->data);
-//         // EXPECT(s8eq(h, hello));
-// }
+TEST("s8icmp") {
+        EXPECT(s8icmp(hello, Hello) == 0);
+        EXPECT(s8icmp(l, W) < 0);
+}
 
 TEST("s8starts_with") {
-        EXPECT(s8starts_with(empty, empty) == true);
-        EXPECT(s8starts_with(hello, empty) == true);
-        EXPECT(s8starts_with(hello, s8("hell")) == false);
-        EXPECT(s8starts_with(hello, s8("Hello")) == true);
+        EXPECT(s8starts_with(empty, empty));
+        EXPECT(s8starts_with(hello, empty));
+        EXPECT(!s8starts_with(hello, W));
+        EXPECT(s8starts_with(hello, s8("hell")));
 }
 
 TEST("s8ends_with") {
-        EXPECT(s8ends_with(empty, empty) == true);
-        EXPECT(s8ends_with(hello, empty) == true);
-        EXPECT(s8ends_with(hello, s8("old")) == false);
-        EXPECT(s8ends_with(hello, s8("World!")) == true);
+        EXPECT(s8ends_with(empty, empty));
+        EXPECT(s8ends_with(hello, empty));
+        EXPECT(!s8ends_with(hello, W));
+        EXPECT(s8ends_with(hello, s8("d!")));
 }
 
 TEST("s8find") {
@@ -62,8 +64,18 @@ TEST("s8find") {
 
 TEST("s8count") {
         EXPECT(s8count(empty, hello) == 0);
-        EXPECT(s8count(hello, empty) == 12);
-        EXPECT(s8count(hello, s8("l")) == 3);
+        EXPECT(s8count(hello, empty) == hello->len);
+        EXPECT(s8count(hello, l) == 3);
+}
+
+TEST("s8cstr") {
+        s8* h = s8cstr(a, (const char*)hello->data, (size_t)hello->len);
+        EXPECT(h != hello && h->data != hello->data && s8eq(h, hello));
+}
+
+TEST("s8copy") {
+        s8* h = s8copy(a, hello);
+        EXPECT(h != hello && h->data != hello->data && s8eq(h, hello));
 }
 
 arena_delete(a);
