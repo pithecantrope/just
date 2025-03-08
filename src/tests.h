@@ -1,44 +1,44 @@
 #ifdef TESTS
-arena a = {0};
+arena* a = arena_new(1024);
 const s8* empty = s8("");
 const s8* hello = s8("Hello World!");
 
-TEST("arena_save") {
-        arena_savepoint save = arena_save(&a);
-        arena_restore(&save);
-        EXPECT(a.regions == 0 && a.head == NULL);
+// arena -------------------------------------------------------------------------------------------
+TEST("arena") {
+        bool* b = alloc(a, bool);
+        *b = true;
+        alloc(a, s8, 0);
+        EXPECT(a->used == sizeof(isize));
+        isize* xs = alloc(a, isize, 2);
+        EXPECT(a->used == 3 * sizeof(isize));
+        xs[0] = -1;
+        xs[1] = 0;
+        EXPECT(*b == true);
 }
 
-TEST("arena_alloc") {
-        alloc(&a, bool);
-        alloc(&a, s8, 0);
-        EXPECT(a.regions == 1 && a.head->used == sizeof(usize));
-        arena_alloc(&a, 8 + ARENA_REGION_CAPACITY, alignof(uintptr_t), 1);
-        EXPECT(a.regions == 2);
-        usize* pusize = alloc(&a, usize);
-        EXPECT(a.head->next->used == 2 * sizeof(usize));
-        *pusize = 19;
+TEST("arena_savepoint") {
+        usize before = a->used;
+        arena_savepoint save = arena_save(a);
+        f64* d = alloc(a, f64);
+        *d = 3.14;
+        arena_restore(save);
+        EXPECT(before == a->used);
+        arena_reset(a);
 }
 
-TEST("arena_restore") {
-        usize before = a.head->next->used;
-        arena_savepoint s = arena_save(&a);
-        s8* ps = alloc(&a, s8);
-        *ps = *hello;
-        arena_restore(&s);
-        EXPECT(before == a.head->next->used);
-}
-
-TEST("arena_reset") {
-        arena_reset(&a);
-        EXPECT(a.regions == 2 && a.head->used == 0 && a.head->next->used == 0);
-}
-
+// s8 ----------------------------------------------------------------------------------------------
 TEST("s8cmp") {
         EXPECT(s8cmp(empty, empty) == 0);
-        EXPECT(s8cmp(empty, s8("\0")) < 0);
-        EXPECT(s8cmp(hello, s8("Z")) > 0);
+        EXPECT(s8cmp(empty, s8("\0")) == -1);
+        EXPECT(s8cmp(hello, s8("Z")) == 1);
 }
+
+// TEST("s8capitalize") {
+//         s8* h = s8cstr(a, "hello world!", 12);
+//         s8capitalize(h);
+//         printf("%.*s\n", (int)h->len, h->data);
+//         // EXPECT(s8eq(h, hello));
+// }
 
 TEST("s8starts_with") {
         EXPECT(s8starts_with(empty, empty) == true);
@@ -66,10 +66,7 @@ TEST("s8count") {
         EXPECT(s8count(hello, s8("l")) == 3);
 }
 
-TEST("arena_free") {
-        arena_free(&a);
-        EXPECT(a.regions == 0);
-}
+arena_delete(a);
 #else
 // IWYU pragma: begin_keep
 #include "core.h"

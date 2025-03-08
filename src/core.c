@@ -20,39 +20,62 @@ arena_alloc(arena* a, usize size, usize align, usize count) {
 }
 
 // s8 ----------------------------------------------------------------------------------------------
-bool
-s8is_title(const s8 s PTR) {
-        TODO(s);
-        return true;
-}
+// bool
+// s8is_title(const s8 s PTR) {
+//         for (isize i = 0; i < s->len; ++i) {
+//                 for (; i < s->len && !u8is_alpha(s->data[i]); ++i) {}
+//                 if (u8is_lower(s->data[i])) {
+//                         return false;
+//                 }
+//                 for (; i < s->len && u8is_alpha(s->data[i]); ++i) {
+//                         if (u8is_upper(s->data[i])) {
+//                                 return false;
+//                         }
+//                 }
+//         }
+//         return true;
+// }
+
+// s8*
+// s8capitalize(s8 s PTR) {
+//         if (s->len > 0) {
+//                 s->data[0] = u8upper(s->data[0]);
+//                 for (isize i = 1; i < s->len; ++i) {
+//                         s->data[i] = u8lower(s->data[i]);
+//                 }
+//         }
+//         return s;
+// }
 
 s8*
 s8title(s8 s PTR) {
         return s;
 }
 
-i32
+s8*
+s8cstr(arena* a, const char data PTR, size_t len) {
+        assert(len <= ISIZE_MAX);
+        s8* s = alloc(a, s8);
+        *s = (s8){.data = alloc(a, u8, len), .len = (isize)len};
+        memcpy(s->data, data, sizeof(*s->data) * len);
+        return s;
+}
+
+s8*
+s8copy(arena* a, const s8 s PTR) {
+        s8* copy = alloc(a, s8);
+        *copy = (s8){.data = alloc(a, u8, (size_t)s->len), .len = s->len};
+        memcpy(copy->data, s, sizeof(*s->data) * (size_t)s->len);
+        return copy;
+}
+
+int
 s8cmp(const s8 s1 PTR, const s8 s2 PTR) {
         if (s1->len != s2->len) {
                 return s1->len < s2->len ? -1 : 1;
         }
-        return memcmp(s1->data, s2->data, (size_t)s1->len);
-}
-
-inline bool
-s8eq(const s8 s1 PTR, const s8 s2 PTR) {
-        return s8cmp(s1, s2) == 0;
-}
-
-bool
-s8starts_with(const s8 s PTR, const s8 prefix PTR) {
-        return (s->len >= prefix->len) && memcmp(s->data, prefix->data, (size_t)prefix->len) == 0;
-}
-
-bool
-s8ends_with(const s8 s PTR, const s8 suffix PTR) {
-        return (s->len >= suffix->len)
-               && memcmp(s->data + (s->len - suffix->len), suffix->data, (size_t)suffix->len) == 0;
+        int cmp = memcmp(s1->data, s2->data, (size_t)s1->len);
+        return (cmp > 0) - (cmp < 0);
 }
 
 // Horspool algorithm
@@ -79,6 +102,12 @@ s8find(const s8 s PTR, const s8 sub PTR) {
                 i += sub->len - 1 - last_occ[s->data[i + sub->len - 1]];
         }
         return -1;
+}
+
+isize
+s8rfind(const s8 s PTR, const s8 sub PTR) {
+        TODO(s, sub);
+        return 0;
 }
 
 isize
