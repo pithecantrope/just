@@ -56,6 +56,28 @@ TEST("s8ends_with") {
         EXPECT(s8ends_with(hello, s8("d!")));
 }
 
+TEST("s8is_title") {
+        EXPECT(s8is_title(empty));
+        EXPECT(s8is_title(s8("8")));
+        EXPECT(!s8is_title(hello));
+        EXPECT(s8is_title(Hello));
+}
+
+TEST("s8capitalize") {
+        s8* w = S8(a, "w");
+        s8capitalize(w);
+        EXPECT(s8eq(w, W));
+        s8* h = s8copy(a, Hello);
+        s8capitalize(h);
+        EXPECT(s8eq(h, s8("Hello world!")));
+}
+
+TEST("s8title") {
+        s8* h = s8copy(a, hello);
+        s8title(h);
+        EXPECT(s8is_title(h) && s8eq(h, Hello));
+}
+
 TEST("s8find") {
         EXPECT(s8find(empty, hello) == -1);
         EXPECT(s8find(hello, empty) == 0);
