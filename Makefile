@@ -1,3 +1,4 @@
+MAKEFLAGS += -j$(nproc)
 PROJECT_NAME := bin
 LDFLAGS :=
 ARGS ?=
