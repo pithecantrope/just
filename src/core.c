@@ -44,3 +44,17 @@ s8cmp(s8 s1, s8 s2) {
         i32 cmp = memcmp(s1.data, s2.data, (usize)s1.len);
         return (cmp > 0) - (cmp < 0);
 }
+
+i32
+s8icmp(s8 s1, s8 s2) {
+        if (s1.len != s2.len) {
+                return s1.len < s2.len ? -1 : 1;
+        }
+        for (isize i = 0; i < s1.len; ++i) {
+                 u8 u1 = u8lower(s1.data[i]), u2 = u8lower(s2.data[i]);
+                 if (u1 != u2) {
+                         return u1 < u2 ? -1 : 1;
+                 }
+         }
+        return 0;
+}

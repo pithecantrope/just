@@ -4,7 +4,7 @@ s8 empty = s8("");
 s8 hello = s8("hello world!");
 s8 Hello = s8("Hello World!");
 s8 l = s8("l");
-// s8 W = s8("W");
+s8 W = s8("W");
 
 // arena -------------------------------------------------------------------------------------------
 TEST("arena") {
@@ -21,6 +21,11 @@ TEST("s8cmp") {
         EXPECT(s8cmp(empty, empty) == 0);
         EXPECT(s8cmp(Hello, hello) == -1);       
         EXPECT(s8cmp(Hello, l) == 1);       
+}
+
+TEST("s8icmp") {
+        EXPECT(s8icmp(Hello, hello) == 0);
+        EXPECT(s8icmp(l, W) == -1);
 }
 
 arena_destroy(a);
