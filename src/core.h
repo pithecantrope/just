@@ -48,7 +48,10 @@ typedef struct {
         usize used;
 } arena_savepoint;
 
-typedef const char* s;
+typedef struct {
+        const u8* data;
+        const isize len;
+} s8;
 
 // General -----------------------------------------------------------------------------------------
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
@@ -60,7 +63,6 @@ typedef const char* s;
 #define countof(xs) (sizeof(xs) / sizeof(0[xs]))
 #define containerof(ptr, type, member) ((type*)((byte*)(ptr) - offsetof(type, member)))
 #define abort_if(condition) if (condition) abort()
-#define PTR [static 1]
 #define INLINE static inline
 #define TODO(...) (CORE_TODO_1(__VA_ARGS__, 0))
 
@@ -123,8 +125,11 @@ void*   arena_alloc(arena* a, usize size, usize align, usize count);
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
-// s -----------------------------------------------------------------------------------------------
-// INLINE isize slen(const s str);
+// s8 ----------------------------------------------------------------------------------------------
+#define s8(s) (s8){.data = (u8*)(s), .len = (isize)(sizeof(s) - 1)}
+#define S8(a, s) s8str(a, s, sizeof(s) - 1)
+s8 s8str(arena* a, const char* data, usize len);
+s8 s8copy(arena* a, s8 s);
  
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
