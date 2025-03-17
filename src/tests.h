@@ -34,6 +34,12 @@ TEST("s8find") {
         EXPECT(s8find(hello, l) == 2);
 }
 
+TEST("s8count") {
+        EXPECT(s8count(empty, hello) == 0);
+        EXPECT(s8count(hello, empty) == hello.len);
+        EXPECT(s8count(hello, l) == 3);
+}
+
 TEST("s8findall") {
         EXPECT(s8findall(a, empty, hello).len == 0);
         isizes index = s8findall(a, hello, empty);

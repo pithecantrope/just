@@ -140,7 +140,9 @@ i32 s8icmp(s8 s1, s8 s2);
 INLINE bool s8eq (s8 s1, s8 s2) { return s8cmp (s1, s2) == 0; }
 INLINE bool s8ieq(s8 s1, s8 s2) { return s8icmp(s1, s2) == 0; }
 
-isize s8find(s8 s, s8 sub);
+isize s8find (s8 s, s8 sub);
+isize s8count(s8 s, s8 sub);
+// bool  s8is_in(s8 s, s8 sub); or reverse args
 isizes s8findall(arena* a, s8 s, s8 sub);
  
 // Internals ---------------------------------------------------------------------------------------

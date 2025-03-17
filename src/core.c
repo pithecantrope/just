@@ -117,3 +117,30 @@ s8findall(arena* a, s8 s, s8 sub) {
         }
         return index;
 }
+
+isize
+s8count(s8 s, s8 sub) {
+        if (s.len < sub.len) {
+                return 0;
+        }
+        if (sub.len == 0) {
+                return s.len;
+        }
+        isize last_occ[U8ASCII];
+        memset(last_occ, -1, sizeof(isize) * U8ASCII);
+        for (isize i = 0; i < sub.len - 1; ++i) {
+                last_occ[sub.data[i]] = i;
+        }
+
+        isize count = 0;
+        for (isize i = 0; i <= s.len - sub.len;) {
+                for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                ++count;
+                                break;
+                        }
+                }
+                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
+        }
+        return count;
+}
