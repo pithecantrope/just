@@ -2,7 +2,8 @@
 
 // arena -------------------------------------------------------------------------------------------
 arena*
-arena_new(usize capacity) {
+arena_create(usize capacity) {
+        abort_if(sizeof(arena) > USIZE_MAX - capacity);
         arena* a = malloc(sizeof(arena) + capacity);
         abort_if(a == NULL);
         *a = (arena){.cap = capacity};
@@ -18,3 +19,5 @@ arena_alloc(arena* a, usize size, usize align, usize count) {
         a->used += padding + count * size;
         return ptr;
 }
+
+// s -----------------------------------------------------------------------------------------------

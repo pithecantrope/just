@@ -48,6 +48,8 @@ typedef struct {
         usize used;
 } arena_savepoint;
 
+typedef const char* s;
+
 // General -----------------------------------------------------------------------------------------
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
 #define MAX(a, b)  ((a) > (b) ? (a) : (b))
@@ -55,6 +57,8 @@ typedef struct {
 #define DIFF(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
 #define IS_POW2(x) (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
+#define countof(xs) (sizeof(xs) / sizeof(0[xs]))
+#define containerof(ptr, type, member) ((type*)((byte*)(ptr) - offsetof(type, member)))
 #define abort_if(condition) if (condition) abort()
 #define PTR [static 1]
 #define INLINE static inline
@@ -111,14 +115,17 @@ INLINE u8   u8lower    (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
 INLINE u8   u8swapcase (u8 c) { return u8is_upper(c) ? u8lower(c) : (u8is_lower(c) ? u8upper(c) : c); }
 
 // arena -------------------------------------------------------------------------------------------
-arena* arena_new(usize capacity);
-void* arena_alloc(arena* a, usize size, usize align, usize count);
+arena* arena_create(usize capacity);
+INLINE void arena_reset  (arena* a) { a->used = 0; }
+INLINE void arena_destroy(arena* a) { free(a); }
+void*   arena_alloc(arena* a, usize size, usize align, usize count);
 #define alloc(...) CORE_ALLOCX(__VA_ARGS__, CORE_ALLOC3, CORE_ALLOC2, 0)(__VA_ARGS__)
-INLINE void arena_reset (arena* a) { a->used = 0; }
-INLINE void arena_delete(arena* a) { free(a); }
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
+// s -----------------------------------------------------------------------------------------------
+// INLINE isize slen(const s str);
+ 
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
 #define CORE_TODO_2(arg, ...) (void)arg, CORE_TODO_3 (__VA_ARGS__, 0)
