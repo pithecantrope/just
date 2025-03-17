@@ -128,8 +128,11 @@ INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; 
 // s8 ----------------------------------------------------------------------------------------------
 #define s8(s) (s8){.data = (u8*)(s), .len = (isize)(sizeof(s) - 1)}
 #define S8(a, s) s8str(a, s, sizeof(s) - 1)
-s8 s8str(arena* a, const char* data, usize len);
-s8 s8copy(arena* a, s8 s);
+s8 s8new(arena* a, const char* data, usize len);
+s8 s8dup(arena* a, s8 s);
+
+i32 s8cmp(s8 s1, s8 s2);
+INLINE bool s8eq(s8 s1, s8 s2) { return s8cmp(s1, s2) == 0; }
  
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)

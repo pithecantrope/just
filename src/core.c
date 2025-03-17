@@ -22,15 +22,25 @@ arena_alloc(arena* a, usize size, usize align, usize count) {
 
 // s8 ----------------------------------------------------------------------------------------------
 s8
-s8str(arena* a, const char* data, usize len) {
+s8new(arena* a, const char* data, usize len) {
         assert(data != NULL && len <= ISIZE_MAX);
         s8 s = (s8){.data = alloc(a, u8, len), .len = (isize)len};
         memcpy((u8*)s.data, data, len);
         return s;
 }
 
-s8 s8copy(arena* a, s8 s) {
+s8
+s8dup(arena* a, s8 s) {
         s8 copy = (s8){.data = alloc(a, u8, (usize)s.len), .len = s.len};
         memcpy((u8*)copy.data, s.data, (usize)s.len);
         return copy;
+}
+
+i32
+s8cmp(s8 s1, s8 s2) {
+        if (s1.len != s2.len) {
+                return s1.len < s2.len ? -1 : 1;
+        }
+        i32 cmp = memcmp(s1.data, s2.data, (usize)s1.len);
+        return (cmp > 0) - (cmp < 0);
 }
