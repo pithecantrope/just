@@ -98,7 +98,7 @@ typedef struct {
 #endif
 
 // u8 ----------------------------------------------------------------------------------------------
-#define U8ALPHABET 256
+#define U8ASCII 127
 INLINE bool u8is_digit (u8 c) { return IS_IN('0', c, '9'); }
 INLINE bool u8is_upper (u8 c) { return IS_IN('A', c, 'Z'); }
 INLINE bool u8is_lower (u8 c) { return IS_IN('a', c, 'z'); }
@@ -109,8 +109,8 @@ INLINE bool u8is_alnum (u8 c) { return u8is_digit(c) || u8is_alpha(c); }
 INLINE bool u8is_xdigit(u8 c) { return u8is_digit(c) || IS_IN('A', c, 'F') || IS_IN('a', c, 'f'); }
 INLINE bool u8is_blank (u8 c) { return c == ' ' || c == '\t'; }
 INLINE bool u8is_space (u8 c) { return u8is_blank(c) || c == '\r' || c == '\n' || c == '\f' || c == '\v'; }
-INLINE bool u8is_ascii (u8 c) { return c <= 127; }
-INLINE bool u8is_cntrl (u8 c) { return c < ' ' || c == 127; }
+INLINE bool u8is_ascii (u8 c) { return c <= U8ASCII; }
+INLINE bool u8is_cntrl (u8 c) { return c < ' ' || c == U8ASCII; }
 INLINE bool u8is_punct (u8 c) { return u8is_graph(c) && !u8is_alnum(c); }
 INLINE u8   u8upper    (u8 c) { return u8is_lower(c) ? c - ('a' - 'A') : c; }
 INLINE u8   u8lower    (u8 c) { return u8is_upper(c) ? c + ('a' - 'A') : c; }
@@ -135,6 +135,9 @@ i32 s8cmp (s8 s1, s8 s2);
 i32 s8icmp(s8 s1, s8 s2);
 INLINE bool s8eq (s8 s1, s8 s2) { return s8cmp (s1, s2) == 0; }
 INLINE bool s8ieq(s8 s1, s8 s2) { return s8icmp(s1, s2) == 0; }
+
+isize s8find(s8 s, s8 sub);
+// isize* s8findall(arena* a, s8 s, s8 sub);
  
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)

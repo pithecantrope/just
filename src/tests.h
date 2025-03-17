@@ -19,13 +19,19 @@ TEST("arena") {
 // s8 ----------------------------------------------------------------------------------------------
 TEST("s8cmp") {
         EXPECT(s8cmp(empty, empty) == 0);
-        EXPECT(s8cmp(Hello, hello) == -1);       
-        EXPECT(s8cmp(Hello, l) == 1);       
+        EXPECT(s8cmp(Hello, hello) == -1);
+        EXPECT(s8cmp(Hello, l) == 1);
 }
 
 TEST("s8icmp") {
         EXPECT(s8icmp(Hello, hello) == 0);
         EXPECT(s8icmp(l, W) == -1);
+}
+
+TEST("s8find") {
+        EXPECT(s8find(empty, hello) == -1);
+        EXPECT(s8find(hello, empty) == 0);
+        EXPECT(s8find(hello, l) == 2);
 }
 
 arena_destroy(a);

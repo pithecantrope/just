@@ -51,10 +51,36 @@ s8icmp(s8 s1, s8 s2) {
                 return s1.len < s2.len ? -1 : 1;
         }
         for (isize i = 0; i < s1.len; ++i) {
-                 u8 u1 = u8lower(s1.data[i]), u2 = u8lower(s2.data[i]);
-                 if (u1 != u2) {
-                         return u1 < u2 ? -1 : 1;
-                 }
-         }
+                u8 u1 = u8lower(s1.data[i]), u2 = u8lower(s2.data[i]);
+                if (u1 != u2) {
+                        return u1 < u2 ? -1 : 1;
+                }
+        }
         return 0;
+}
+
+// Horspool algorithm
+isize
+s8find(s8 s, s8 sub) {
+        if (s.len < sub.len) {
+                return -1;
+        }
+        if (sub.len == 0) {
+                return 0;
+        }
+        isize last_occ[U8ASCII];
+        memset(last_occ, -1, sizeof(isize) * U8ASCII);
+        for (isize i = 0; i < sub.len - 1; ++i) {
+                last_occ[sub.data[i]] = i;
+        }
+
+        for (isize i = 0; i <= s.len - sub.len;) {
+                for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                return i;
+                        }
+                }
+                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
+        }
+        return -1;
 }
