@@ -31,7 +31,7 @@ s8new(arena* a, const char* data, usize len) {
 
 s8
 s8dup(arena* a, s8 s) {
-        s8 copy = (s8){.data = alloc(a, u8, (usize)s.len), .len = s.len};
+        s8 copy = (s8){.data = alloc(a, u8, s.len), .len = s.len};
         memcpy((u8*)copy.data, s.data, (usize)s.len);
         return copy;
 }
@@ -83,4 +83,37 @@ s8find(s8 s, s8 sub) {
                 i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
         }
         return -1;
+}
+
+isizes
+s8findall(arena* a, s8 s, s8 sub) {
+        isizes index = {.data = alloc(a, isize, 0), .len = 0};
+        if (s.len < sub.len) {
+                return index;
+        }
+        if (sub.len == 0) {
+                alloc(a, isize, s.len);
+                index.len = s.len;
+                for (isize i = 0; i < index.len; ++i) {
+                        index.data[i] = i;
+                }
+                return index;
+        }
+        isize last_occ[U8ASCII];
+        memset(last_occ, -1, sizeof(isize) * U8ASCII);
+        for (isize i = 0; i < sub.len - 1; ++i) {
+                last_occ[sub.data[i]] = i;
+        }
+
+        for (isize i = 0; i <= s.len - sub.len;) {
+                for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                *(isize*)alloc(a, isize) = i;
+                                ++index.len;
+                                break;
+                        }
+                }
+                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
+        }
+        return index;
 }

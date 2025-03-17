@@ -34,6 +34,14 @@ TEST("s8find") {
         EXPECT(s8find(hello, l) == 2);
 }
 
+TEST("s8findall") {
+        EXPECT(s8findall(a, empty, hello).len == 0);
+        isizes index = s8findall(a, hello, empty);
+        EXPECT(index.len == hello.len && index.data[index.len - 1] == hello.len - 1);
+        index = s8findall(a, hello, l);
+        EXPECT(index.len == 3 && index.data[0] == 2 && index.data[1] == 3 && index.data[2] == 9);
+}
+
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep

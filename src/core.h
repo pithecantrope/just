@@ -52,6 +52,10 @@ typedef struct {
         const u8* data;
         const isize len;
 } s8;
+typedef struct {
+        isize* data;
+        isize len;
+} isizes;
 
 // General -----------------------------------------------------------------------------------------
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
@@ -137,7 +141,7 @@ INLINE bool s8eq (s8 s1, s8 s2) { return s8cmp (s1, s2) == 0; }
 INLINE bool s8ieq(s8 s1, s8 s2) { return s8icmp(s1, s2) == 0; }
 
 isize s8find(s8 s, s8 sub);
-// isize* s8findall(arena* a, s8 s, s8 sub);
+isizes s8findall(arena* a, s8 s, s8 sub);
  
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
@@ -151,6 +155,6 @@ isize s8find(s8 s, s8 sub);
 
 #define CORE_ALLOCX(_1, _2, _3, NAME, ...) NAME
 #define CORE_ALLOC2(a, t)    (t*)arena_alloc(a, sizeof(t), alignof(t), 1)
-#define CORE_ALLOC3(a, t, n) (t*)arena_alloc(a, sizeof(t), alignof(t), n)
+#define CORE_ALLOC3(a, t, n) (t*)arena_alloc(a, sizeof(t), alignof(t), (usize)(n))
 
 #endif // CORE_H
