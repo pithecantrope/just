@@ -3,8 +3,8 @@
  * @copyright GPL-3.0
  */
 
-#ifndef CORE_H
-#define CORE_H
+#ifndef JUST_H
+#define JUST_H
 
 #include <assert.h>
 #include <float.h>
@@ -69,7 +69,7 @@ typedef struct {
 #define containerof(ptr, type, member) ((type*)((byte*)(ptr) - offsetof(type, member)))
 #define abort_if(condition) if (condition) abort()
 #define INLINE static inline
-#define TODO(...) (CORE_TODO_1(__VA_ARGS__, 0))
+#define TODO(...) (JUST_TODO_1(__VA_ARGS__, 0))
 
 // Test  -------------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
@@ -86,7 +86,7 @@ typedef struct {
         }
         #else
         // IWYU pragma: begin_keep
-        #include "core.h"
+        #include "just.h"
         // IWYU pragma: end_keep
         #endif
 // main.c:
@@ -126,7 +126,7 @@ arena* arena_create(usize capacity);
 INLINE void arena_reset  (arena* a) { a->used = 0; }
 INLINE void arena_destroy(arena* a) { free(a); }
 void*   arena_alloc(arena* a, usize size, usize align, usize count);
-#define alloc(...) CORE_ALLOCX(__VA_ARGS__, CORE_ALLOC3, CORE_ALLOC2, 0)(__VA_ARGS__)
+#define alloc(...) JUST_ALLOCX(__VA_ARGS__, JUST_ALLOC3, JUST_ALLOC2, 0)(__VA_ARGS__)
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
@@ -172,17 +172,17 @@ INLINE s8   s8swapcase  (s8 s) { for (isize i = 0; i < s.len; ++i) { s.data[i] =
        s8   s8capitalize(s8 s);
        s8   s8title     (s8 s);
 // Internals ---------------------------------------------------------------------------------------
-#define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
-#define CORE_TODO_2(arg, ...) (void)arg, CORE_TODO_3 (__VA_ARGS__, 0)
-#define CORE_TODO_3(arg, ...) (void)arg, CORE_TODO_4 (__VA_ARGS__, 0)
-#define CORE_TODO_4(arg, ...) (void)arg, CORE_TODO_5 (__VA_ARGS__, 0)
-#define CORE_TODO_5(arg, ...) (void)arg, CORE_TODO_6 (__VA_ARGS__, 0)
-#define CORE_TODO_6(arg, ...) (void)arg, CORE_TODO_7 (__VA_ARGS__, 0)
-#define CORE_TODO_7(arg, ...) (void)arg, CORE_TODO_8 (__VA_ARGS__, 0)
-#define CORE_TODO_8(arg, ...) (void)arg
+#define JUST_TODO_1(arg, ...) (void)arg, JUST_TODO_2 (__VA_ARGS__, 0)
+#define JUST_TODO_2(arg, ...) (void)arg, JUST_TODO_3 (__VA_ARGS__, 0)
+#define JUST_TODO_3(arg, ...) (void)arg, JUST_TODO_4 (__VA_ARGS__, 0)
+#define JUST_TODO_4(arg, ...) (void)arg, JUST_TODO_5 (__VA_ARGS__, 0)
+#define JUST_TODO_5(arg, ...) (void)arg, JUST_TODO_6 (__VA_ARGS__, 0)
+#define JUST_TODO_6(arg, ...) (void)arg, JUST_TODO_7 (__VA_ARGS__, 0)
+#define JUST_TODO_7(arg, ...) (void)arg, JUST_TODO_8 (__VA_ARGS__, 0)
+#define JUST_TODO_8(arg, ...) (void)arg
 
-#define CORE_ALLOCX(_1, _2, _3, NAME, ...) NAME
-#define CORE_ALLOC2(a, t)    (t*)arena_alloc(a, sizeof(t), alignof(t), 1)
-#define CORE_ALLOC3(a, t, n) (t*)arena_alloc(a, sizeof(t), alignof(t), (usize)(n))
+#define JUST_ALLOCX(_1, _2, _3, NAME, ...) NAME
+#define JUST_ALLOC2(a, t)    (t*)arena_alloc(a, sizeof(t), alignof(t), 1)
+#define JUST_ALLOC3(a, t, n) (t*)arena_alloc(a, sizeof(t), alignof(t), (usize)(n))
 
-#endif // CORE_H
+#endif // JUST_H

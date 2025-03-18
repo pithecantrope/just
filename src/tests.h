@@ -102,6 +102,6 @@ TEST("s8title") {
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep
-#include "core.h"
+#include "just.h"
 // IWYU pragma: end_keep
 #endif
