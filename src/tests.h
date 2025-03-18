@@ -29,6 +29,13 @@ TEST("s8icmp") {
         EXPECT(s8icmp(l, W) == -1);
 }
 
+TEST("s8slice") {
+        EXPECT(s8eq(s8slice(a, Hello, Hello.len - 1, -1, -1), s8("!dlroW olleH")));
+        EXPECT(s8eq(s8slice(a, Hello, 0, Hello.len, 2), s8("HloWrd")));
+}
+
+TEST("s8span") {}
+
 TEST("s8find") {
         EXPECT(s8find(empty, hello) == -1);
         EXPECT(s8find(hello, empty) == 0);

@@ -38,19 +38,15 @@ s8dup(arena* a, s8 s) {
 
 s8
 s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
-        if (start < 0) {
-                start += s.len;
-        }
-        if (stop < 0) {
-                stop += s.len;
-        }
+        assert(step != 0);
+        start = (step > 0) ? MAX(start, 0) : MIN(start, s.len - 1);
+        stop = (step > 0) ? MIN(stop, s.len) : MAX(stop, -1);
+
         u8* data = alloc(a, u8, 0);
         isize len = 0;
-        if (step != 0) {
-                for (isize i = start; step > 0 ? i < stop : i > stop; i += step) {
-                        *(u8*)alloc(a, u8) = s.data[i];
-                        ++len;
-                }
+        for (isize i = start; (step > 0) ? (i < stop) : (i > stop); i += step) {
+                *(u8*)alloc(a, u8) = s.data[i];
+                ++len;
         }
         return (s8){.data = data, .len = len};
 }
@@ -76,6 +72,12 @@ s8icmp(s8 s1, s8 s2) {
                 }
         }
         return 0;
+}
+
+s8
+s8span(s8 s, isize index, isize len) {
+        TODO(s, index, len);
+        return s;
 }
 
 // Horspool algorithm
