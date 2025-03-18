@@ -50,7 +50,8 @@ s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
         return slice;
 }
 
-s8 s8repeat(arena* a, s8 s, isize n) {
+s8
+s8repeat(arena* a, s8 s, isize n) {
         abort_if(s.len == 0);
         n = CLAMP(0, n, ISIZE_MAX / s.len);
         s8 repeat = {.data = alloc(a, u8, s.len * n), .len = s.len * n};
@@ -58,6 +59,14 @@ s8 s8repeat(arena* a, s8 s, isize n) {
                 memcpy(repeat.data + i * s.len, s.data, (usize)s.len);
         }
         return repeat;
+}
+
+s8
+s8cat(arena* a, s8 s1, s8 s2) {
+        s8 cat = {.data = alloc(a, u8, s1.len + s2.len), .len = s1.len + s2.len};
+        memcpy(cat.data, s1.data, (usize)s1.len);
+        memcpy(cat.data + s1.len, s2.data, (usize)s2.len);
+        return cat;
 }
 
 i32

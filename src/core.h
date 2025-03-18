@@ -137,6 +137,7 @@ s8 s8new   (arena* a, const char* data, usize len);
 s8 s8dup   (arena* a, s8 s);
 s8 s8slice (arena* a, s8 s, isize start, isize stop, isize step);
 s8 s8repeat(arena* a, s8 s, isize n);
+s8 s8cat   (arena* a, s8 s1, s8 s2);
 
 i32 s8cmp (s8 s1, s8 s2);
 i32 s8icmp(s8 s1, s8 s2);
