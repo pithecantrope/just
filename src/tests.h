@@ -84,6 +84,11 @@ TEST("s8findall") {
         EXPECT(arr.len == 3 && arr.data[0] == 2 && arr.data[1] == 3 && arr.data[2] == 9);
 }
 
+TEST("s8is_title") {
+        EXPECT(!s8is_title(s8("H_ello, World!")));
+        EXPECT(s8is_title(W) && s8is_title(Hello));
+}
+
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep

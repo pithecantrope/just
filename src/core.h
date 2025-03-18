@@ -151,7 +151,21 @@ s8 s8span(s8 s, isize index, isize len);
 isize s8find (s8 s, s8 sub);
 isize s8count(s8 s, s8 sub);
 indexes s8findall(arena* a, s8 s, s8 sub);
- 
+
+INLINE bool s8is_digit  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_digit (s.data[i])) return false; } return true; }
+INLINE bool s8is_upper  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_upper (s.data[i])) return false; } return true; }
+INLINE bool s8is_lower  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_lower (s.data[i])) return false; } return true; }
+INLINE bool s8is_print  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_print (s.data[i])) return false; } return true; }
+INLINE bool s8is_graph  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_graph (s.data[i])) return false; } return true; }
+INLINE bool s8is_alpha  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_alpha (s.data[i])) return false; } return true; }
+INLINE bool s8is_alnum  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_alnum (s.data[i])) return false; } return true; }
+INLINE bool s8is_xdigit (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_xdigit(s.data[i])) return false; } return true; }
+INLINE bool s8is_blank  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_blank (s.data[i])) return false; } return true; }
+INLINE bool s8is_space  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_space (s.data[i])) return false; } return true; }
+INLINE bool s8is_ascii  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_ascii (s.data[i])) return false; } return true; }
+INLINE bool s8is_cntrl  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_cntrl (s.data[i])) return false; } return true; }
+INLINE bool s8is_punct  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_punct (s.data[i])) return false; } return true; }
+       bool s8is_title  (s8 s);
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
 #define CORE_TODO_2(arg, ...) (void)arg, CORE_TODO_3 (__VA_ARGS__, 0)

@@ -68,7 +68,8 @@ s8cat(arena* a, s8 s1, s8 s2) {
         return cat;
 }
 
-s8 s8inject(arena* a, s8 s1, isize index, isize len, s8 s2) {
+s8
+s8inject(arena* a, s8 s1, isize index, isize len, s8 s2) {
         index = CLAMP(0, index, s1.len);
         len = CLAMP(0, len, s1.len - index);
         s8 inject = {.data = alloc(a, u8, s1.len + s2.len - len), .len = s1.len + s2.len - len};
@@ -190,4 +191,20 @@ s8findall(arena* a, s8 s, s8 sub) {
                 i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
         }
         return arr;
+}
+
+bool
+s8is_title(s8 s) {
+        for (isize i = 0; i < s.len; ++i) {
+                for (; i < s.len && !u8is_alpha(s.data[i]); ++i) {}
+                if (u8is_lower(s.data[i++])) {
+                        return false;
+                }
+                for (; i < s.len && u8is_alpha(s.data[i]); ++i) {
+                        if (u8is_upper(s.data[i])) {
+                                return false;
+                        }
+                }
+        }
+        return true;
 }
