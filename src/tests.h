@@ -29,6 +29,16 @@ TEST("s8icmp") {
         EXPECT(s8icmp(l, W) == -1);
 }
 
+TEST("s8starts_with") {
+        EXPECT(!s8starts_with(hello, l));
+        EXPECT(s8starts_with(hello, s8("hello")));
+}
+
+TEST("s8ends_with") {
+        EXPECT(!s8ends_with(hello, l));
+        EXPECT(s8ends_with(hello, s8("world!")));
+}
+
 TEST("s8slice") {
         EXPECT(s8eq(s8slice(a, Hello, -3, 97, 2), s8("HloWrd")));
         EXPECT(s8eq(s8slice(a, Hello, Hello.len - 1, -1, -1), s8("!dlroW olleH")));
