@@ -30,11 +30,14 @@ TEST("s8icmp") {
 }
 
 TEST("s8slice") {
+        EXPECT(s8eq(s8slice(a, Hello, -3, 97, 2), s8("HloWrd")));
         EXPECT(s8eq(s8slice(a, Hello, Hello.len - 1, -1, -1), s8("!dlroW olleH")));
-        EXPECT(s8eq(s8slice(a, Hello, 0, Hello.len, 2), s8("HloWrd")));
 }
 
-TEST("s8span") {}
+TEST("s8span") {
+        EXPECT(s8eq(s8span(W, -3, 97), W));
+        EXPECT(s8eq(s8span(Hello, 6, 5), s8("World")));
+}
 
 TEST("s8find") {
         EXPECT(s8find(empty, hello) == -1);
@@ -50,10 +53,10 @@ TEST("s8count") {
 
 TEST("s8findall") {
         EXPECT(s8findall(a, empty, hello).len == 0);
-        isizes index = s8findall(a, hello, empty);
-        EXPECT(index.len == hello.len && index.data[index.len - 1] == hello.len - 1);
-        index = s8findall(a, hello, l);
-        EXPECT(index.len == 3 && index.data[0] == 2 && index.data[1] == 3 && index.data[2] == 9);
+        indexes arr = s8findall(a, hello, empty);
+        EXPECT(arr.len == hello.len && arr.data[arr.len - 1] == hello.len - 1);
+        arr = s8findall(a, hello, l);
+        EXPECT(arr.len == 3 && arr.data[0] == 2 && arr.data[1] == 3 && arr.data[2] == 9);
 }
 
 arena_destroy(a);

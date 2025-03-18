@@ -49,13 +49,13 @@ typedef struct {
 } arena_savepoint;
 
 typedef struct {
-        const u8* data;
-        const isize len;
+        u8* data;
+        isize len;
 } s8;
 typedef struct {
         isize* data;
         isize len;
-} isizes;
+} indexes;
 
 // General -----------------------------------------------------------------------------------------
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
@@ -64,6 +64,7 @@ typedef struct {
 #define DIFF(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
 #define IS_POW2(x) (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
+#define CLAMP(min, x, max) ((x) < (min) ? (min) : (((x) > (max)) ? (max) : (x)))
 #define countof(xs) (sizeof(xs) / sizeof(0[xs]))
 #define containerof(ptr, type, member) ((type*)((byte*)(ptr) - offsetof(type, member)))
 #define abort_if(condition) if (condition) abort()
@@ -144,7 +145,7 @@ INLINE bool s8ieq(s8 s1, s8 s2) { return s8icmp(s1, s2) == 0; }
 s8 s8span(s8 s, isize index, isize len);
 isize s8find (s8 s, s8 sub);
 isize s8count(s8 s, s8 sub);
-isizes s8findall(arena* a, s8 s, s8 sub);
+indexes s8findall(arena* a, s8 s, s8 sub);
  
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)

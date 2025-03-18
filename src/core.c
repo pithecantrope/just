@@ -23,32 +23,31 @@ arena_alloc(arena* a, usize size, usize align, usize count) {
 // s8 ----------------------------------------------------------------------------------------------
 s8
 s8new(arena* a, const char* data, usize len) {
-        assert(data != NULL && len <= ISIZE_MAX);
+        abort_if(data == NULL || len > ISIZE_MAX);
         s8 s = (s8){.data = alloc(a, u8, len), .len = (isize)len};
-        memcpy((u8*)s.data, data, len);
+        memcpy(s.data, data, len);
         return s;
 }
 
 s8
 s8dup(arena* a, s8 s) {
-        s8 copy = (s8){.data = alloc(a, u8, s.len), .len = s.len};
-        memcpy((u8*)copy.data, s.data, (usize)s.len);
-        return copy;
+        s8 dup = (s8){.data = alloc(a, u8, s.len), .len = s.len};
+        memcpy(dup.data, s.data, (usize)s.len);
+        return dup;
 }
 
 s8
 s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
         assert(step != 0);
-        start = (step > 0) ? MAX(start, 0) : MIN(start, s.len - 1);
-        stop = (step > 0) ? MIN(stop, s.len) : MAX(stop, -1);
+        start = CLAMP(0, start, s.len - 1);
+        stop = (step > 0) ? CLAMP(0, stop, s.len) : CLAMP(-1, stop, s.len - 1);
 
-        u8* data = alloc(a, u8, 0);
-        isize len = 0;
+        s8 slice = (s8){.data = alloc(a, u8, 0), .len = 0};
         for (isize i = start; (step > 0) ? (i < stop) : (i > stop); i += step) {
                 *(u8*)alloc(a, u8) = s.data[i];
-                ++len;
+                ++slice.len;
         }
-        return (s8){.data = data, .len = len};
+        return slice;
 }
 
 i32
@@ -76,8 +75,8 @@ s8icmp(s8 s1, s8 s2) {
 
 s8
 s8span(s8 s, isize index, isize len) {
-        TODO(s, index, len);
-        return s;
+        index = CLAMP(0, index, s.len - 1);
+        return (s8){.data = s.data + index, .len = CLAMP(0, len, s.len - index)};
 }
 
 // Horspool algorithm
@@ -133,19 +132,18 @@ s8count(s8 s, s8 sub) {
         return count;
 }
 
-isizes
+indexes
 s8findall(arena* a, s8 s, s8 sub) {
-        isizes index = {.data = alloc(a, isize, 0), .len = 0};
+        indexes arr = {.data = alloc(a, isize, 0), .len = 0};
         if (s.len < sub.len) {
-                return index;
+                return arr;
         }
         if (sub.len == 0) {
-                alloc(a, isize, s.len);
-                index.len = s.len;
-                for (isize i = 0; i < index.len; ++i) {
-                        index.data[i] = i;
+                alloc(a, isize, arr.len = s.len);
+                for (isize i = 0; i < arr.len; ++i) {
+                        arr.data[i] = i;
                 }
-                return index;
+                return arr;
         }
         isize last_occ[U8ASCII];
         memset(last_occ, -1, sizeof(isize) * U8ASCII);
@@ -157,11 +155,11 @@ s8findall(arena* a, s8 s, s8 sub) {
                 for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
                         if (--j == -1) {
                                 *(isize*)alloc(a, isize) = i;
-                                ++index.len;
+                                ++arr.len;
                                 break;
                         }
                 }
                 i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
         }
-        return index;
+        return arr;
 }
