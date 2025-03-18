@@ -34,6 +34,11 @@ TEST("s8slice") {
         EXPECT(s8eq(s8slice(a, Hello, Hello.len - 1, -1, -1), s8("!dlroW olleH")));
 }
 
+TEST("s8repeat") {
+        EXPECT(s8eq(s8repeat(a, l, 0), empty));
+        EXPECT(s8eq(s8repeat(a, W, 3), s8("WWW")));
+}
+
 TEST("s8span") {
         EXPECT(s8eq(s8span(W, -3, 97), W));
         EXPECT(s8eq(s8span(Hello, 6, 5), s8("World")));
