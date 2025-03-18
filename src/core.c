@@ -36,6 +36,25 @@ s8dup(arena* a, s8 s) {
         return copy;
 }
 
+s8
+s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
+        if (start < 0) {
+                start += s.len;
+        }
+        if (stop < 0) {
+                stop += s.len;
+        }
+        u8* data = alloc(a, u8, 0);
+        isize len = 0;
+        if (step != 0) {
+                for (isize i = start; step > 0 ? i < stop : i > stop; i += step) {
+                        *(u8*)alloc(a, u8) = s.data[i];
+                        ++len;
+                }
+        }
+        return (s8){.data = data, .len = len};
+}
+
 i32
 s8cmp(s8 s1, s8 s2) {
         if (s1.len != s2.len) {
@@ -85,6 +104,33 @@ s8find(s8 s, s8 sub) {
         return -1;
 }
 
+isize
+s8count(s8 s, s8 sub) {
+        if (s.len < sub.len) {
+                return 0;
+        }
+        if (sub.len == 0) {
+                return s.len;
+        }
+        isize last_occ[U8ASCII];
+        memset(last_occ, -1, sizeof(isize) * U8ASCII);
+        for (isize i = 0; i < sub.len - 1; ++i) {
+                last_occ[sub.data[i]] = i;
+        }
+
+        isize count = 0;
+        for (isize i = 0; i <= s.len - sub.len;) {
+                for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                ++count;
+                                break;
+                        }
+                }
+                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
+        }
+        return count;
+}
+
 isizes
 s8findall(arena* a, s8 s, s8 sub) {
         isizes index = {.data = alloc(a, isize, 0), .len = 0};
@@ -116,31 +162,4 @@ s8findall(arena* a, s8 s, s8 sub) {
                 i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
         }
         return index;
-}
-
-isize
-s8count(s8 s, s8 sub) {
-        if (s.len < sub.len) {
-                return 0;
-        }
-        if (sub.len == 0) {
-                return s.len;
-        }
-        isize last_occ[U8ASCII];
-        memset(last_occ, -1, sizeof(isize) * U8ASCII);
-        for (isize i = 0; i < sub.len - 1; ++i) {
-                last_occ[sub.data[i]] = i;
-        }
-
-        isize count = 0;
-        for (isize i = 0; i <= s.len - sub.len;) {
-                for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
-                        if (--j == -1) {
-                                ++count;
-                                break;
-                        }
-                }
-                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
-        }
-        return count;
 }

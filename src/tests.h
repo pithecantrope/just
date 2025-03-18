@@ -1,10 +1,5 @@
 #ifdef TESTS
 arena* a = arena_create(1 << 16);
-s8 empty = s8("");
-s8 hello = s8("hello world!");
-s8 Hello = s8("Hello World!");
-s8 l = s8("l");
-s8 W = s8("W");
 
 // arena -------------------------------------------------------------------------------------------
 TEST("arena") {
@@ -17,6 +12,12 @@ TEST("arena") {
 }
 
 // s8 ----------------------------------------------------------------------------------------------
+s8 empty = s8("");
+s8 hello = s8("hello world!");
+s8 Hello = s8("Hello World!");
+s8 l = s8("l");
+s8 W = s8("W");
+
 TEST("s8cmp") {
         EXPECT(s8cmp(empty, empty) == 0);
         EXPECT(s8cmp(Hello, hello) == -1);
