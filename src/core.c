@@ -208,3 +208,27 @@ s8is_title(s8 s) {
         }
         return true;
 }
+
+s8
+s8capitalize(s8 s) {
+        if (s.len > 0) {
+                s.data[0] = u8upper(s.data[0]);
+                for (isize i = 1; i < s.len; ++i) {
+                        s.data[i] = u8lower(s.data[i]);
+                }
+        }
+        return s;
+}
+
+s8
+s8title(s8 s) {
+        for (isize i = 0; i < s.len; ++i) {
+                for (; i < s.len && !u8is_alpha(s.data[i]); ++i) {}
+                s.data[i] = u8upper(s.data[i]);
+                ++i;
+                for (; i < s.len && u8is_alpha(s.data[i]); ++i) {
+                        s.data[i] = u8lower(s.data[i]);
+                }
+        }
+        return s;
+}

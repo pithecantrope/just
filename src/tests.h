@@ -89,6 +89,16 @@ TEST("s8is_title") {
         EXPECT(s8is_title(W) && s8is_title(Hello));
 }
 
+TEST("s8capitalize") {
+        EXPECT(!s8eq(s8capitalize(s8dup(a, Hello)), Hello));        
+        EXPECT(s8eq(s8capitalize(s8dup(a, empty)), empty));
+}
+
+TEST("s8title") {
+        EXPECT(s8eq(s8title(S8(a, "w")), W));
+        EXPECT(s8eq(s8title(s8dup(a, hello)), Hello));
+}
+
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep

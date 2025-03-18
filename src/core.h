@@ -166,6 +166,11 @@ INLINE bool s8is_ascii  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_a
 INLINE bool s8is_cntrl  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_cntrl (s.data[i])) return false; } return true; }
 INLINE bool s8is_punct  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_punct (s.data[i])) return false; } return true; }
        bool s8is_title  (s8 s);
+INLINE s8   s8upper     (s8 s) { for (isize i = 0; i < s.len; ++i) { s.data[i] = u8upper   (s.data[i]); } return s; }
+INLINE s8   s8lower     (s8 s) { for (isize i = 0; i < s.len; ++i) { s.data[i] = u8lower   (s.data[i]); } return s; }
+INLINE s8   s8swapcase  (s8 s) { for (isize i = 0; i < s.len; ++i) { s.data[i] = u8swapcase(s.data[i]); } return s; }
+       s8   s8capitalize(s8 s);
+       s8   s8title     (s8 s);
 // Internals ---------------------------------------------------------------------------------------
 #define CORE_TODO_1(arg, ...) (void)arg, CORE_TODO_2 (__VA_ARGS__, 0)
 #define CORE_TODO_2(arg, ...) (void)arg, CORE_TODO_3 (__VA_ARGS__, 0)
