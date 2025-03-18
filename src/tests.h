@@ -44,6 +44,11 @@ TEST("s8cat") {
         EXPECT(s8eq(s8cat(a, l, W), s8("lW")));
 }
 
+TEST("s8inject") {
+        EXPECT(s8eq(s8inject(a, l, 0, 1, W), W));
+        EXPECT(s8eq(s8inject(a, Hello, 5, 0, s8(",")), s8("Hello, World!")));
+}
+
 TEST("s8span") {
         EXPECT(s8eq(s8span(W, -3, 97), W));
         EXPECT(s8eq(s8span(Hello, 6, 5), s8("World")));

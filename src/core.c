@@ -41,7 +41,6 @@ s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
         assert(step != 0);
         start = CLAMP(0, start, s.len - 1);
         stop = (step > 0) ? CLAMP(0, stop, s.len) : CLAMP(-1, stop, s.len - 1);
-
         s8 slice = (s8){.data = alloc(a, u8, 0), .len = 0};
         for (isize i = start; (step > 0) ? (i < stop) : (i > stop); i += step) {
                 *(u8*)alloc(a, u8) = s.data[i];
@@ -67,6 +66,16 @@ s8cat(arena* a, s8 s1, s8 s2) {
         memcpy(cat.data, s1.data, (usize)s1.len);
         memcpy(cat.data + s1.len, s2.data, (usize)s2.len);
         return cat;
+}
+
+s8 s8inject(arena* a, s8 s1, isize index, isize len, s8 s2) {
+        index = CLAMP(0, index, s1.len);
+        len = CLAMP(0, len, s1.len - index);
+        s8 inject = {.data = alloc(a, u8, s1.len + s2.len - len), .len = s1.len + s2.len - len};
+        memcpy(inject.data, s1.data, (usize)index);
+        memcpy(inject.data + index, s2.data, (usize)s2.len);
+        memcpy(inject.data + index + s2.len, s1.data + index + len, (usize)(s1.len - index - len));
+        return inject;
 }
 
 i32
