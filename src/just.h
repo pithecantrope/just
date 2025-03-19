@@ -1,6 +1,5 @@
 /**
- * @author    Egor Afanasin <afanasin.egor@gmail.com>
- * @copyright LGPL-3.0
+ * @author Egor Afanasin <afanasin.egor@gmail.com>
  */
 
 #ifndef JUST_H
