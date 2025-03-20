@@ -40,7 +40,7 @@ TEST("s8ends_with") {
 }
 
 TEST("s8slice") {
-        EXPECT(s8eq(s8slice(a, Hello, -3, 97, 2), s8("HloWrd")));
+        EXPECT(s8eq(s8slice(a, Hello, 0, Hello.len, 2), s8("HloWrd")));
         EXPECT(s8eq(s8slice(a, Hello, Hello.len - 1, -1, -1), s8("!dlroW olleH")));
 }
 
@@ -60,7 +60,7 @@ TEST("s8inject") {
 }
 
 TEST("s8span") {
-        EXPECT(s8eq(s8span(W, -3, 97), W));
+        EXPECT(s8eq(s8span(W, 0, W.len), W));
         EXPECT(s8eq(s8span(Hello, 6, 5), s8("World")));
 }
 
@@ -90,7 +90,7 @@ TEST("s8is_title") {
 }
 
 TEST("s8capitalize") {
-        EXPECT(!s8eq(s8capitalize(s8dup(a, Hello)), Hello));        
+        EXPECT(!s8eq(s8capitalize(s8dup(a, Hello)), Hello));
         EXPECT(s8eq(s8capitalize(s8dup(a, empty)), empty));
 }
 

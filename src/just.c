@@ -3,18 +3,18 @@
 // arena -------------------------------------------------------------------------------------------
 arena*
 arena_create(usize capacity) {
-        abort_if(sizeof(arena) > USIZE_MAX - capacity);
+        assert(sizeof(arena) <= USIZE_MAX - capacity);
         arena* a = malloc(sizeof(arena) + capacity);
-        abort_if(a == NULL);
+        assert(a != NULL);
         *a = (arena){.cap = capacity};
         return a;
 }
 
 void*
 arena_alloc(arena* a, usize size, usize align, usize count) {
-        assert(a != NULL && IS_POW2(align));
+        assert(a != NULL && size != 0 && IS_POW2(align));
         usize padding = -(uintptr_t)(a->data + a->used) & (align - 1);
-        abort_if(size == 0 || count > (a->cap - a->used - padding) / size);
+        assert(count <= (a->cap - a->used - padding) / size && "Increase arena capacity");
         void* ptr = a->data + a->used + padding;
         a->used += padding + count * size;
         return ptr;
@@ -23,7 +23,7 @@ arena_alloc(arena* a, usize size, usize align, usize count) {
 // s8 ----------------------------------------------------------------------------------------------
 s8
 s8new(arena* a, const char* data, usize len) {
-        abort_if(data == NULL || len > ISIZE_MAX);
+        assert(data != NULL && len <= ISIZE_MAX);
         s8 s = (s8){.data = alloc(a, u8, len), .len = (isize)len};
         memcpy(s.data, data, len);
         return s;
@@ -38,21 +38,21 @@ s8dup(arena* a, s8 s) {
 
 s8
 s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
-        assert(step != 0);
-        start = CLAMP(0, start, s.len - 1);
-        stop = (step > 0) ? CLAMP(0, stop, s.len) : CLAMP(-1, stop, s.len - 1);
-        s8 slice = (s8){.data = alloc(a, u8, 0), .len = 0};
-        for (isize i = start; (step > 0) ? (i < stop) : (i > stop); i += step) {
-                *(u8*)alloc(a, u8) = s.data[i];
-                ++slice.len;
+        assert(s.len != 0 && step != 0);
+        bool n = step < 0;
+        assert(IS_IN(0, start, s.len - 1) && "Out of bounds");
+        assert(IS_IN(0 - n, stop, s.len - n) && "Out of bounds");
+        isize len = (ABS(stop - start) + ABS(step) - 1) / ABS(step);
+        s8 slice = (s8){.data = alloc(a, u8, len), .len = len};
+        for (isize i = 0, j = start; n ? (j > stop) : (j < stop); ++i, j += step) {
+                slice.data[i] = s.data[j];
         }
         return slice;
 }
 
 s8
 s8repeat(arena* a, s8 s, isize n) {
-        abort_if(s.len == 0);
-        n = CLAMP(0, n, ISIZE_MAX / s.len);
+        assert(s.len != 0 && IS_IN(0, n, ISIZE_MAX / s.len));
         s8 repeat = {.data = alloc(a, u8, s.len * n), .len = s.len * n};
         for (isize i = 0; i < n; ++i) {
                 memcpy(repeat.data + i * s.len, s.data, (usize)s.len);
@@ -62,6 +62,7 @@ s8repeat(arena* a, s8 s, isize n) {
 
 s8
 s8cat(arena* a, s8 s1, s8 s2) {
+        assert(s1.len <= ISIZE_MAX - s2.len);
         s8 cat = {.data = alloc(a, u8, s1.len + s2.len), .len = s1.len + s2.len};
         memcpy(cat.data, s1.data, (usize)s1.len);
         memcpy(cat.data + s1.len, s2.data, (usize)s2.len);
@@ -70,9 +71,10 @@ s8cat(arena* a, s8 s1, s8 s2) {
 
 s8
 s8inject(arena* a, s8 s1, isize index, isize len, s8 s2) {
-        index = CLAMP(0, index, s1.len);
-        len = CLAMP(0, len, s1.len - index);
-        s8 inject = {.data = alloc(a, u8, s1.len + s2.len - len), .len = s1.len + s2.len - len};
+        assert(IS_IN(0, index, s1.len) && "Out of bounds");
+        assert(IS_IN(0, len, s1.len - index) && "Out of bounds");
+        assert(s1.len - len <= ISIZE_MAX - s2.len);
+        s8 inject = {.data = alloc(a, u8, s1.len - len + s2.len), .len = s1.len - len + s2.len};
         memcpy(inject.data, s1.data, (usize)index);
         memcpy(inject.data + index, s2.data, (usize)s2.len);
         memcpy(inject.data + index + s2.len, s1.data + index + len, (usize)(s1.len - index - len));
@@ -104,8 +106,9 @@ s8icmp(s8 s1, s8 s2) {
 
 s8
 s8span(s8 s, isize index, isize len) {
-        index = CLAMP(0, index, s.len - 1);
-        return (s8){.data = s.data + index, .len = CLAMP(0, len, s.len - index)};
+        assert(IS_IN(0, index, s.len) && "Out of bounds");
+        assert(IS_IN(0, len, s.len - index) && "Out of bounds");
+        return (s8){.data = s.data + index, .len = len};
 }
 
 // Horspool algorithm

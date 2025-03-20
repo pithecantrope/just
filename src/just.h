@@ -63,10 +63,8 @@ typedef struct {
 #define DIFF(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
 #define IS_POW2(x) (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
-#define CLAMP(min, x, max) ((x) < (min) ? (min) : (((x) > (max)) ? (max) : (x)))
 #define countof(xs) (sizeof(xs) / sizeof(0[xs]))
 #define containerof(ptr, type, member) ((type*)((byte*)(ptr) - offsetof(type, member)))
-#define abort_if(condition) if (condition) abort()
 #define INLINE static inline
 #define TODO(...) (JUST_TODO_1(__VA_ARGS__, 0))
 
