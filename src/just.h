@@ -5,9 +5,11 @@
 #ifndef JUST_H
 #define JUST_H
 
+#ifndef JUST_ASSERT
 #include <assert.h>
+#define JUST_ASSERT assert
+#endif // JUST_ASSERT
 #include <float.h>
-#include <inttypes.h>
 #include <stdalign.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -52,25 +54,23 @@ typedef struct {
         isize len;
 } s8;
 typedef struct {
-        isize* data;
-        isize len;
-} indexes;
-typedef struct {
         s8* data;
         isize len;
 } s8s;
+typedef struct {
+        isize* data;
+        isize len;
+} isizes;
 
 // General -----------------------------------------------------------------------------------------
-#define MIN(a, b)  ((a) < (b) ? (a) : (b))
-#define MAX(a, b)  ((a) > (b) ? (a) : (b))
-#define ABS(x)     (((x) > 0) ? (x) : -(x))
-#define DIFF(a, b) ((a) > (b) ? (a) - (b) : (b) - (a))
-#define IS_POW2(x) (((x) > 0) && (((x) & ((x) - 1)) == 0))
+#define MIN(a, b)          ((a) < (b) ? (a) : (b))
+#define MAX(a, b)          ((a) > (b) ? (a) : (b))
+#define DIFF(a, b)         ((a) > (b) ? (a) - (b) : (b) - (a))
+#define ABS(x)             (((x) > 0) ? (x) : -(x))
+#define IS_POW2(x)         (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
-#define countof(xs) (sizeof(xs) / sizeof(0[xs]))
-#define containerof(ptr, type, member) ((type*)((byte*)(ptr) - offsetof(type, member)))
-#define INLINE static inline
-#define TODO(...) (JUST_TODO_1(__VA_ARGS__, 0))
+#define INLINE             static inline
+#define TODO(...)          (JUST_TODO_1(__VA_ARGS__, 0))
 
 // Test  -------------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
@@ -151,8 +151,8 @@ INLINE bool s8ends_with  (s8 s, s8 suffix) { return (s.len >= suffix.len) && mem
 s8 s8span(s8 s, isize index, isize len);
 isize s8find (s8 s, s8 sub);
 isize s8count(s8 s, s8 sub);
-indexes s8findall(arena* a, s8 s, s8 sub);
-s8s s8split(arena* a, s8 s, s8 sep); // or spans? subs?
+isizes s8findall(arena* a, s8 s, s8 sub);
+s8s s8split(arena* a, s8 s, s8 sep);
 
 INLINE bool s8is_digit  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_digit (s.data[i])) return false; } return true; }
 INLINE bool s8is_upper  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_upper (s.data[i])) return false; } return true; }
@@ -174,17 +174,17 @@ INLINE s8   s8swapcase  (s8 s) { for (isize i = 0; i < s.len; ++i) { s.data[i] =
        s8   s8capitalize(s8 s);
        s8   s8title     (s8 s);
 // Internals ---------------------------------------------------------------------------------------
-#define JUST_TODO_1(arg, ...) (void)arg, JUST_TODO_2 (__VA_ARGS__, 0)
-#define JUST_TODO_2(arg, ...) (void)arg, JUST_TODO_3 (__VA_ARGS__, 0)
-#define JUST_TODO_3(arg, ...) (void)arg, JUST_TODO_4 (__VA_ARGS__, 0)
-#define JUST_TODO_4(arg, ...) (void)arg, JUST_TODO_5 (__VA_ARGS__, 0)
-#define JUST_TODO_5(arg, ...) (void)arg, JUST_TODO_6 (__VA_ARGS__, 0)
-#define JUST_TODO_6(arg, ...) (void)arg, JUST_TODO_7 (__VA_ARGS__, 0)
-#define JUST_TODO_7(arg, ...) (void)arg, JUST_TODO_8 (__VA_ARGS__, 0)
-#define JUST_TODO_8(arg, ...) (void)arg
+#define JUST_TODO_1(arg, ...)              (void)arg, JUST_TODO_2(__VA_ARGS__, 0)
+#define JUST_TODO_2(arg, ...)              (void)arg, JUST_TODO_3(__VA_ARGS__, 0)
+#define JUST_TODO_3(arg, ...)              (void)arg, JUST_TODO_4(__VA_ARGS__, 0)
+#define JUST_TODO_4(arg, ...)              (void)arg, JUST_TODO_5(__VA_ARGS__, 0)
+#define JUST_TODO_5(arg, ...)              (void)arg, JUST_TODO_6(__VA_ARGS__, 0)
+#define JUST_TODO_6(arg, ...)              (void)arg, JUST_TODO_7(__VA_ARGS__, 0)
+#define JUST_TODO_7(arg, ...)              (void)arg, JUST_TODO_8(__VA_ARGS__, 0)
+#define JUST_TODO_8(arg, ...)              (void)arg
 
 #define JUST_ALLOCX(_1, _2, _3, NAME, ...) NAME
-#define JUST_ALLOC2(a, t)    (t*)arena_alloc(a, sizeof(t), alignof(t), 1)
-#define JUST_ALLOC3(a, t, n) (t*)arena_alloc(a, sizeof(t), alignof(t), (usize)(n))
+#define JUST_ALLOC2(a, t)                  (t*)arena_alloc(a, sizeof(t), alignof(t), 1)
+#define JUST_ALLOC3(a, t, n)               (t*)arena_alloc(a, sizeof(t), alignof(t), (usize)(n))
 
 #endif // JUST_H

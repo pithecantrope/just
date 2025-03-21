@@ -45,12 +45,10 @@ TEST("s8slice") {
 }
 
 TEST("s8repeat") {
-        EXPECT(s8eq(s8repeat(a, l, 0), empty));
         EXPECT(s8eq(s8repeat(a, W, 3), s8("WWW")));
 }
 
 TEST("s8cat") {
-        EXPECT(s8eq(s8cat(a, empty, empty), empty));
         EXPECT(s8eq(s8cat(a, l, W), s8("lW")));
 }
 
@@ -75,7 +73,7 @@ TEST("s8count") {
 }
 
 TEST("s8findall") {
-        indexes arr = s8findall(a, hello, l);
+        isizes arr = s8findall(a, hello, l);
         EXPECT(arr.len == 3 && arr.data[0] == 2 && arr.data[1] == 3 && arr.data[2] == 9);
 }
 
@@ -93,7 +91,7 @@ TEST("s8is_title") {
 
 TEST("s8capitalize") {
         EXPECT(!s8eq(s8capitalize(s8dup(a, Hello)), Hello));
-        EXPECT(s8eq(s8capitalize(s8dup(a, empty)), empty));
+        EXPECT(s8eq(s8capitalize(s8dup(a, l)), s8("L")));
 }
 
 TEST("s8title") {

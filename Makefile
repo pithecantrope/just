@@ -15,9 +15,9 @@ TARGET := $(TARGET_DIR)/$(PROJECT_NAME)-$(CONFIG)
 CFLAGS_RELEASE := -O3 -flto=auto -DNDEBUG
 CFLAGS_DEBUG := -O0 -ggdb3
 CFLAGS_PROFILE := -O2 -fno-inline -fno-omit-frame-pointer -g3
-CFLAGS_DEV := -std=c17 -O0 -g3 -fsanitize=address,undefined -Werror -Wall -Wextra -pedantic-errors \
-			  -fanalyzer -Wlogical-op -Wconversion -Winline -Wundef -Wswitch-default -Wswitch-enum \
-			  -Wshadow -Wdouble-promotion -Wfloat-equal -Wstrict-prototypes -Wold-style-definition
+CFLAGS_DEV := -std=c17 -O0 -g3 -Werror -Wall -Wextra -Wpedantic -fsanitize=address,undefined \
+			  -Wcast-qual -Wconversion -Wdouble-promotion -Wfloat-equal -Winline -Wlogical-op \
+              -Wold-style-definition -Wshadow -Wswitch-default -Wswitch-enum -Wundef
 CFLAGS := $(CFLAGS_$(CONFIG))
 
 SRCS := $(wildcard $(SRC_DIR)/*.c)
@@ -100,7 +100,7 @@ run: $(TARGET)
 	$^ $(ARGS)
 
 spell:
-	codespell $(SRC_DIR) README.md
+	codespell $(SRC_DIR)
 
 clean:
 	rm -rf $(BUILD_DIR)

@@ -3,18 +3,20 @@
 // arena -------------------------------------------------------------------------------------------
 arena*
 arena_create(usize capacity) {
-        assert(sizeof(arena) <= USIZE_MAX - capacity);
+        JUST_ASSERT(sizeof(arena) <= USIZE_MAX - capacity);
         arena* a = malloc(sizeof(arena) + capacity);
-        assert(a != NULL);
+        JUST_ASSERT(a != NULL);
         *a = (arena){.cap = capacity};
         return a;
 }
 
 void*
 arena_alloc(arena* a, usize size, usize align, usize count) {
-        assert(a != NULL && size != 0 && IS_POW2(align) && "Invalid arguments");
+        JUST_ASSERT(a != NULL && "Invalid arena");
+        JUST_ASSERT(size != 0 && "Invalid size");
+        JUST_ASSERT(IS_POW2(align) && "Invalid alignment");
         usize padding = -(uintptr_t)(a->data + a->used) & (align - 1);
-        assert(count <= (a->cap - a->used - padding) / size && "Increase arena capacity");
+        JUST_ASSERT(count <= (a->cap - a->used - padding) / size && "Increase arena capacity");
         void* ptr = a->data + a->used + padding;
         a->used += padding + count * size;
         return ptr;
@@ -23,7 +25,8 @@ arena_alloc(arena* a, usize size, usize align, usize count) {
 // s8 ----------------------------------------------------------------------------------------------
 s8
 s8new(arena* a, const char* data, usize len) {
-        assert(data != NULL && len <= ISIZE_MAX);
+        JUST_ASSERT(data != NULL && "Invalid data");
+        JUST_ASSERT(len <= ISIZE_MAX && "Invalid length");
         s8 s = (s8){.data = alloc(a, u8, len), .len = (isize)len};
         memcpy(s.data, data, len);
         return s;
@@ -31,6 +34,7 @@ s8new(arena* a, const char* data, usize len) {
 
 s8
 s8dup(arena* a, s8 s) {
+        JUST_ASSERT(s.data != NULL && 0 < s.len && "Invalid string");
         s8 dup = (s8){.data = alloc(a, u8, s.len), .len = s.len};
         memcpy(dup.data, s.data, (usize)s.len);
         return dup;
@@ -38,11 +42,12 @@ s8dup(arena* a, s8 s) {
 
 s8
 s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
-        assert(s.len != 0 && step != 0);
+        JUST_ASSERT(s.data != NULL && 0 < s.len && "Invalid string");
+        JUST_ASSERT(step != 0 && "Invalid step");
         bool n = step < 0;
-        assert(IS_IN(0, start, s.len - 1) && "Out of bounds");
-        assert(IS_IN(0 - n, stop, s.len - n) && "Out of bounds");
-        isize len = (ABS(stop - start) + ABS(step) - 1) / ABS(step);
+        JUST_ASSERT(IS_IN(0, start, s.len - 1) && "Out of bounds");
+        JUST_ASSERT(IS_IN(0 - n, stop, s.len - n) && "Out of bounds");
+        isize len = (DIFF(start, stop) + ABS(step) - 1) / ABS(step);
         s8 slice = (s8){.data = alloc(a, u8, len), .len = len};
         for (isize i = 0, j = start; n ? (j > stop) : (j < stop); ++i, j += step) {
                 slice.data[i] = s.data[j];
@@ -52,7 +57,8 @@ s8slice(arena* a, s8 s, isize start, isize stop, isize step) {
 
 s8
 s8repeat(arena* a, s8 s, isize n) {
-        assert(s.len != 0 && IS_IN(0, n, ISIZE_MAX / s.len));
+        JUST_ASSERT(s.data != NULL && 0 < s.len && "Invalid string");
+        assert(IS_IN(0, n, ISIZE_MAX / s.len) && "Result string is too large");
         s8 repeat = {.data = alloc(a, u8, s.len * n), .len = s.len * n};
         for (isize i = 0; i < n; ++i) {
                 memcpy(repeat.data + i * s.len, s.data, (usize)s.len);
@@ -62,7 +68,9 @@ s8repeat(arena* a, s8 s, isize n) {
 
 s8
 s8cat(arena* a, s8 s1, s8 s2) {
-        assert(s1.len <= ISIZE_MAX - s2.len);
+        JUST_ASSERT(s1.data != NULL && 0 < s1.len && "Invalid string");
+        JUST_ASSERT(s2.data != NULL && 0 < s2.len && "Invalid string");
+        JUST_ASSERT(s1.len <= ISIZE_MAX - s2.len && "Result string is too large");
         s8 cat = {.data = alloc(a, u8, s1.len + s2.len), .len = s1.len + s2.len};
         memcpy(cat.data, s1.data, (usize)s1.len);
         memcpy(cat.data + s1.len, s2.data, (usize)s2.len);
@@ -71,9 +79,9 @@ s8cat(arena* a, s8 s1, s8 s2) {
 
 s8
 s8inject(arena* a, s8 s1, isize index, isize len, s8 s2) {
-        assert(IS_IN(0, index, s1.len) && "Out of bounds");
-        assert(IS_IN(0, len, s1.len - index) && "Out of bounds");
-        assert(s1.len - len <= ISIZE_MAX - s2.len);
+        JUST_ASSERT(IS_IN(0, index, s1.len) && "Out of bounds");
+        JUST_ASSERT(IS_IN(0, len, s1.len - index) && "Out of bounds");
+        JUST_ASSERT(s1.len - len <= ISIZE_MAX - s2.len && "Result string is too large");
         s8 inject = {.data = alloc(a, u8, s1.len - len + s2.len), .len = s1.len - len + s2.len};
         memcpy(inject.data, s1.data, (usize)index);
         memcpy(inject.data + index, s2.data, (usize)s2.len);
@@ -106,8 +114,8 @@ s8icmp(s8 s1, s8 s2) {
 
 s8
 s8span(s8 s, isize index, isize len) {
-        assert(IS_IN(0, index, s.len) && "Out of bounds");
-        assert(IS_IN(0, len, s.len - index) && "Out of bounds");
+        JUST_ASSERT(IS_IN(0, index, s.len) && "Out of bounds");
+        JUST_ASSERT(IS_IN(0, len, s.len - index) && "Out of bounds");
         return (s8){.data = s.data + index, .len = len};
 }
 
@@ -150,11 +158,11 @@ s8count(s8 s, s8 sub) {
         return count;
 }
 
-indexes
+isizes
 s8findall(arena* a, s8 s, s8 sub) {
         assert(s.data && 0 < s.len && "Invalid string");
         assert(IS_IN(1, sub.len, s.len) && "Invalid substring");
-        indexes arr = {.data = alloc(a, isize, 0), .len = 0};
+        isizes arr = {.data = alloc(a, isize, 0), .len = 0};
         isize last[U8ASCII];
         memset(last, -1, sizeof(isize) * U8ASCII);
         for (isize i = 0; i < sub.len - 1; ++i) {
