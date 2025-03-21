@@ -65,23 +65,25 @@ TEST("s8span") {
 }
 
 TEST("s8find") {
-        EXPECT(s8find(empty, hello) == -1);
-        EXPECT(s8find(hello, empty) == 0);
+        EXPECT(s8find(Hello, W) == 6);
         EXPECT(s8find(hello, l) == 2);
 }
 
 TEST("s8count") {
-        EXPECT(s8count(empty, hello) == 0);
-        EXPECT(s8count(hello, empty) == hello.len);
+        EXPECT(s8count(Hello, W) == 1);
         EXPECT(s8count(hello, l) == 3);
 }
 
 TEST("s8findall") {
-        EXPECT(s8findall(a, empty, hello).len == 0);
-        indexes arr = s8findall(a, hello, empty);
-        EXPECT(arr.len == hello.len && arr.data[arr.len - 1] == hello.len - 1);
-        arr = s8findall(a, hello, l);
+        indexes arr = s8findall(a, hello, l);
         EXPECT(arr.len == 3 && arr.data[0] == 2 && arr.data[1] == 3 && arr.data[2] == 9);
+}
+
+TEST("s8split") {
+        s8s sub = s8split(a, s8("Hello,World,!"), s8(","));
+        for (isize i = 0; i < sub.len; ++i) {
+                printf("%.*s\n", (int)sub.data[i].len, sub.data[i].data);
+        }
 }
 
 TEST("s8is_title") {

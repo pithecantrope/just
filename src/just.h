@@ -55,6 +55,10 @@ typedef struct {
         isize* data;
         isize len;
 } indexes;
+typedef struct {
+        s8* data;
+        isize len;
+} s8s;
 
 // General -----------------------------------------------------------------------------------------
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
@@ -148,6 +152,7 @@ s8 s8span(s8 s, isize index, isize len);
 isize s8find (s8 s, s8 sub);
 isize s8count(s8 s, s8 sub);
 indexes s8findall(arena* a, s8 s, s8 sub);
+s8s s8split(arena* a, s8 s, s8 sep); // or spans? subs?
 
 INLINE bool s8is_digit  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_digit (s.data[i])) return false; } return true; }
 INLINE bool s8is_upper  (s8 s) { for (isize i = 0; i < s.len; ++i) { if (!u8is_upper (s.data[i])) return false; } return true; }

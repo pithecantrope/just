@@ -12,7 +12,7 @@ arena_create(usize capacity) {
 
 void*
 arena_alloc(arena* a, usize size, usize align, usize count) {
-        assert(a != NULL && size != 0 && IS_POW2(align));
+        assert(a != NULL && size != 0 && IS_POW2(align) && "Invalid arguments");
         usize padding = -(uintptr_t)(a->data + a->used) & (align - 1);
         assert(count <= (a->cap - a->used - padding) / size && "Increase arena capacity");
         void* ptr = a->data + a->used + padding;
@@ -111,79 +111,56 @@ s8span(s8 s, isize index, isize len) {
         return (s8){.data = s.data + index, .len = len};
 }
 
-// Horspool algorithm
 isize
 s8find(s8 s, s8 sub) {
-        if (s.len < sub.len) {
-                return -1;
-        }
-        if (sub.len == 0) {
-                return 0;
-        }
-        isize last_occ[U8ASCII];
-        memset(last_occ, -1, sizeof(isize) * U8ASCII);
+        assert(s.data && 0 < s.len && "Invalid string");
+        assert(sub.data && IS_IN(1, sub.len, s.len) && "Invalid substring");
+        isize last[U8ASCII]; // Horspool algorithm
+        memset(last, -1, sizeof(isize) * U8ASCII);
         for (isize i = 0; i < sub.len - 1; ++i) {
-                last_occ[sub.data[i]] = i;
+                last[sub.data[i]] = i;
         }
-
-        for (isize i = 0; i <= s.len - sub.len;) {
+        for (isize i = 0; i <= s.len - sub.len; i += sub.len - 1 - last[s.data[i + sub.len - 1]]) {
                 for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
                         if (--j == -1) {
                                 return i;
                         }
                 }
-                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
         }
         return -1;
 }
 
 isize
 s8count(s8 s, s8 sub) {
-        if (s.len < sub.len) {
-                return 0;
-        }
-        if (sub.len == 0) {
-                return s.len;
-        }
-        isize last_occ[U8ASCII];
-        memset(last_occ, -1, sizeof(isize) * U8ASCII);
+        assert(s.data && 0 < s.len && "Invalid string");
+        assert(sub.data && IS_IN(1, sub.len, s.len) && "Invalid substring");
+        isize last[U8ASCII], count = 0;
+        memset(last, -1, sizeof(isize) * U8ASCII);
         for (isize i = 0; i < sub.len - 1; ++i) {
-                last_occ[sub.data[i]] = i;
+                last[sub.data[i]] = i;
         }
-
-        isize count = 0;
-        for (isize i = 0; i <= s.len - sub.len;) {
+        for (isize i = 0; i <= s.len - sub.len; i += sub.len - 1 - last[s.data[i + sub.len - 1]]) {
                 for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
                         if (--j == -1) {
                                 ++count;
                                 break;
                         }
                 }
-                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
         }
         return count;
 }
 
 indexes
 s8findall(arena* a, s8 s, s8 sub) {
+        assert(s.data && 0 < s.len && "Invalid string");
+        assert(IS_IN(1, sub.len, s.len) && "Invalid substring");
         indexes arr = {.data = alloc(a, isize, 0), .len = 0};
-        if (s.len < sub.len) {
-                return arr;
-        }
-        if (sub.len == 0) {
-                alloc(a, isize, arr.len = s.len);
-                for (isize i = 0; i < arr.len; ++i) {
-                        arr.data[i] = i;
-                }
-                return arr;
-        }
-        isize last_occ[U8ASCII];
-        memset(last_occ, -1, sizeof(isize) * U8ASCII);
+        isize last[U8ASCII];
+        memset(last, -1, sizeof(isize) * U8ASCII);
         for (isize i = 0; i < sub.len - 1; ++i) {
-                last_occ[sub.data[i]] = i;
+                last[sub.data[i]] = i;
         }
-
-        for (isize i = 0; i <= s.len - sub.len;) {
+        for (isize i = 0; i <= s.len - sub.len; i += sub.len - 1 - last[s.data[i + sub.len - 1]]) {
                 for (isize j = sub.len - 1; sub.data[j] == s.data[j + i];) {
                         if (--j == -1) {
                                 *(isize*)alloc(a, isize) = i;
@@ -191,8 +168,32 @@ s8findall(arena* a, s8 s, s8 sub) {
                                 break;
                         }
                 }
-                i += sub.len - 1 - last_occ[s.data[i + sub.len - 1]];
         }
+        return arr;
+}
+
+s8s
+s8split(arena* a, s8 s, s8 sep) {
+        assert(s.data && 0 < s.len && "Invalid string");
+        assert(IS_IN(1, sep.len, s.len) && "Invalid separator");
+        s8s arr = {.data = alloc(a, s8, 0), .len = 0};
+        isize last[U8ASCII], prev = 0;
+        memset(last, -1, sizeof(isize) * U8ASCII);
+        for (isize i = 0; i < sep.len - 1; ++i) {
+                last[sep.data[i]] = i;
+        }
+        for (isize i = 0; i <= s.len - sep.len; i += sep.len - 1 - last[s.data[i + sep.len - 1]]) {
+                for (isize j = sep.len - 1; sep.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                *(s8*)alloc(a, s8) = (s8){.data = s.data + prev, .len = i - prev};
+                                ++arr.len;
+                                prev = i + sep.len;
+                                break;
+                        }
+                }
+        }
+        *(s8*)alloc(a, s8) = (s8){.data = s.data + prev, .len = s.len - prev};
+        ++arr.len;
         return arr;
 }
 
