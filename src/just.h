@@ -10,7 +10,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdio.h>  // printf
+#include <stdio.h>  // printf/putchar
 #include <stdlib.h> // malloc/free
 #include <string.h> // memXXX
 
@@ -49,7 +49,7 @@ typedef struct {
 #define IS_POW2(x)         (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
 // Suppress up to 8 arguments
-#define TODO(...)          (JUST_TODO_1(__VA_ARGS__, 0))
+#define TODO(...)          JUST_TODOX(__VA_ARGS__, JUST_TODO8, JUST_TODO7, JUST_TODO6, JUST_TODO5, JUST_TODO4, JUST_TODO3, JUST_TODO2, JUST_TODO1, 0)(__VA_ARGS__)
 
 // Test  -------------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
@@ -111,17 +111,18 @@ INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = 
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
 // Internals ---------------------------------------------------------------------------------------
-#define JUST_TODO_1(arg, ...) (void)arg, JUST_TODO_2(__VA_ARGS__, 0)
-#define JUST_TODO_2(arg, ...) (void)arg, JUST_TODO_3(__VA_ARGS__, 0)
-#define JUST_TODO_3(arg, ...) (void)arg, JUST_TODO_4(__VA_ARGS__, 0)
-#define JUST_TODO_4(arg, ...) (void)arg, JUST_TODO_5(__VA_ARGS__, 0)
-#define JUST_TODO_5(arg, ...) (void)arg, JUST_TODO_6(__VA_ARGS__, 0)
-#define JUST_TODO_6(arg, ...) (void)arg, JUST_TODO_7(__VA_ARGS__, 0)
-#define JUST_TODO_7(arg, ...) (void)arg, JUST_TODO_8(__VA_ARGS__, 0)
-#define JUST_TODO_8(arg, ...) (void)arg
+#define JUST_TODOX(a, b, c, d, e, f, g, h, NAME, ...) NAME
+#define JUST_TODO1(a) ((void)(a))
+#define JUST_TODO2(a, b) ((void)(a), (void)(b))
+#define JUST_TODO3(a, b, c) ((void)(a), (void)(b), (void)(c))
+#define JUST_TODO4(a, b, c, d) ((void)(a), (void)(b), (void)(c), (void)(d))
+#define JUST_TODO5(a, b, c, d, e) ((void)(a), (void)(b), (void)(c), (void)(d), (void)(e))
+#define JUST_TODO6(a, b, c, d, e, f) ((void)(a), (void)(b), (void)(c), (void)(d), (void)(e), (void)(f))
+#define JUST_TODO7(a, b, c, d, e, f, g) ((void)(a), (void)(b), (void)(c), (void)(d), (void)(e), (void)(f), (void)(g))
+#define JUST_TODO8(a, b, c, d, e, f, g, h) ((void)(a), (void)(b), (void)(c), (void)(d), (void)(e), (void)(f), (void)(g), (void)(h))
 
-#define JUST_ALLOCX(_1, _2, _3, NAME, ...) NAME
-#define JUST_ALLOC2(a, t)                  (t*)arena_alloc(a, alignof(t), sizeof(t), 1)
-#define JUST_ALLOC3(a, t, n)               (t*)arena_alloc(a, alignof(t), sizeof(t), (usize)(n))
+#define JUST_ALLOCX(a, b, c, NAME, ...) NAME
+#define JUST_ALLOC2(a, t)               (t*)arena_alloc(a, alignof(t), sizeof(t), 1)
+#define JUST_ALLOC3(a, t, n)            (t*)arena_alloc(a, alignof(t), sizeof(t), (usize)(n))
 
 #endif // JUST_H
