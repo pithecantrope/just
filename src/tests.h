@@ -6,7 +6,7 @@ TEST("arena") {
         arena_savepoint save = arena_save(a);
         alloc(a, f32, 3);
         alloc(a, f64);
-        EXPECT(a->used == 24);
+        EXPECT(a->used == 3 * 8);
         arena_restore(save);
         EXPECT(a->used == 0);
 }

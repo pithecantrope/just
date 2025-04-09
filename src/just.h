@@ -40,6 +40,11 @@ typedef struct {
         usize used;
 } arena_savepoint;
 
+typedef struct {
+        u8* data;
+        isize len;
+} s8;
+
 // General -----------------------------------------------------------------------------------------
 #define INLINE             static inline
 #define MIN(a, b)          ((a) < (b) ? (a) : (b))
@@ -48,8 +53,10 @@ typedef struct {
 #define ABS(x)             (((x) > 0) ? (x) : -(x))
 #define IS_POW2(x)         (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
-// Suppress up to 8 arguments
-#define TODO(...)          JUST_TODOX(__VA_ARGS__, JUST_TODO8, JUST_TODO7, JUST_TODO6, JUST_TODO5, JUST_TODO4, JUST_TODO3, JUST_TODO2, JUST_TODO1, 0)(__VA_ARGS__)
+#define TODO(...)          JUST8X(__VA_ARGS__, JUST_TODO8, JUST_TODO7, JUST_TODO6, JUST_TODO5, JUST_TODO4, JUST_TODO3, JUST_TODO2, JUST_TODO1, 0)(__VA_ARGS__)
+static char* PRINT_SEP = " ";
+#define print(...)         do { JUST16X(__VA_ARGS__, JUST_PRINT16, JUST_PRINT15, JUST_PRINT14, JUST_PRINT13, JUST_PRINT12, JUST_PRINT11, JUST_PRINT10, JUST_PRINT9, JUST_PRINT8, JUST_PRINT7, JUST_PRINT6, JUST_PRINT5, JUST_PRINT4, JUST_PRINT3, JUST_PRINT2, JUST_PRINT1, 0)(__VA_ARGS__); } while(0)
+#define println(...)       do { JUST16X(__VA_ARGS__, JUST_PRINT16, JUST_PRINT15, JUST_PRINT14, JUST_PRINT13, JUST_PRINT12, JUST_PRINT11, JUST_PRINT10, JUST_PRINT9, JUST_PRINT8, JUST_PRINT7, JUST_PRINT6, JUST_PRINT5, JUST_PRINT4, JUST_PRINT3, JUST_PRINT2, JUST_PRINT1, 0)(__VA_ARGS__); putchar('\n'); } while(0)
 
 // Test  -------------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
@@ -111,7 +118,9 @@ INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = 
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
 // Internals ---------------------------------------------------------------------------------------
-#define JUST_TODOX(a, b, c, d, e, f, g, h, NAME, ...) NAME
+#define JUST8X(a, b, c, d, e, f, g, h, NAME, ...) NAME
+#define JUST16X(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, NAME, ...) NAME
+
 #define JUST_TODO1(a) ((void)(a))
 #define JUST_TODO2(a, b) ((void)(a), (void)(b))
 #define JUST_TODO3(a, b, c) ((void)(a), (void)(b), (void)(c))
@@ -120,6 +129,69 @@ INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; 
 #define JUST_TODO6(a, b, c, d, e, f) ((void)(a), (void)(b), (void)(c), (void)(d), (void)(e), (void)(f))
 #define JUST_TODO7(a, b, c, d, e, f, g) ((void)(a), (void)(b), (void)(c), (void)(d), (void)(e), (void)(f), (void)(g))
 #define JUST_TODO8(a, b, c, d, e, f, g, h) ((void)(a), (void)(b), (void)(c), (void)(d), (void)(e), (void)(f), (void)(g), (void)(h))
+
+#define JUST_PRINT(x) _Generic((x),                                                                \
+        char:               JUST_PRINT_char,                                                       \
+        signed char:        JUST_PRINT_schar,                                                      \
+        unsigned char:      JUST_PRINT_uchar,                                                      \
+        short:              JUST_PRINT_short,                                                      \
+        unsigned short:     JUST_PRINT_ushort,                                                     \
+        int:                JUST_PRINT_int,                                                        \
+        unsigned:           JUST_PRINT_uint,                                                       \
+        long:               JUST_PRINT_long,                                                       \
+        unsigned long:      JUST_PRINT_ulong,                                                      \
+        long long:          JUST_PRINT_llong,                                                      \
+        unsigned long long: JUST_PRINT_ullong,                                                     \
+        float:              JUST_PRINT_double,                                                     \
+        double:             JUST_PRINT_double,                                                     \
+        long double:        JUST_PRINT_ldouble,                                                    \
+        char*:              JUST_PRINT_str,                                                        \
+        const char*:        JUST_PRINT_cstr,                                                       \
+        void*:              JUST_PRINT_ptr,                                                        \
+        const void*:        JUST_PRINT_cptr,                                                       \
+        bool:               JUST_PRINT_bool,                                                       \
+        arena*:             JUST_PRINT_arena,                                                      \
+        arena_savepoint:    JUST_PRINT_arena_savepoint,                                            \
+        s8:                 JUST_PRINT_s8                                                          \
+)(x)
+INLINE void JUST_PRINT_char   (char x)               { printf("%c",   x); }
+INLINE void JUST_PRINT_schar  (signed char x)        { printf("%hhd", x); }
+INLINE void JUST_PRINT_uchar  (unsigned char x)      { printf("%hhu", x); }
+INLINE void JUST_PRINT_short  (short x)              { printf("%hd",  x); }
+INLINE void JUST_PRINT_ushort (unsigned short x)     { printf("%hu",  x); }
+INLINE void JUST_PRINT_int    (int x)                { printf("%d",   x); }
+INLINE void JUST_PRINT_uint   (unsigned x)           { printf("%u",   x); }
+INLINE void JUST_PRINT_long   (long x)               { printf("%ld",  x); }
+INLINE void JUST_PRINT_ulong  (unsigned long x)      { printf("%lu",  x); }
+INLINE void JUST_PRINT_llong  (long long x)          { printf("%lld", x); }
+INLINE void JUST_PRINT_ullong (unsigned long long x) { printf("%llu", x); }
+INLINE void JUST_PRINT_double (double x)             { printf("%lf",  x); }
+INLINE void JUST_PRINT_ldouble(long double x)        { printf("%Lf",  x); }
+INLINE void JUST_PRINT_str    (char* x)              { printf("%s",   x); }
+INLINE void JUST_PRINT_cstr   (const char* x)        { printf("%s",   x); }
+INLINE void JUST_PRINT_ptr    (void* x)              { printf("%p",   x); }
+INLINE void JUST_PRINT_cptr   (const void* x)        { printf("%p",   x); }
+INLINE void JUST_PRINT_bool(bool x) { printf("%s", (x ? "true" : "false")); }
+INLINE void JUST_PRINT_arena          (arena* x)          { printf("{used:%zu, cap:%zu, data:%p}", x->used, x->cap, (void*)x->data); }
+INLINE void JUST_PRINT_arena_savepoint(arena_savepoint x) { printf("{arena:%p, used:%zu}", (void*)x.arena, x.used); }
+INLINE void JUST_PRINT_s8(s8 x) { for(isize i = 0; i < x.len; ++i) putchar(x.data[i]); }
+INLINE void JUST_PRINT_sep(void) { printf("%s", PRINT_SEP); }
+#define JUST_PRINT1(a) JUST_PRINT(a)
+#define JUST_PRINT2(a, b) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b)
+#define JUST_PRINT3(a, b, c) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c)
+#define JUST_PRINT4(a, b, c, d) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d)
+#define JUST_PRINT5(a, b, c, d, e) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e)
+#define JUST_PRINT6(a, b, c, d, e, f) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f)
+#define JUST_PRINT7(a, b, c, d, e, f, g) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g)
+#define JUST_PRINT8(a, b, c, d, e, f, g, h) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h)
+#define JUST_PRINT9(a, b, c, d, e, f, g, h, i) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i)
+#define JUST_PRINT10(a, b, c, d, e, f, g, h, i, j) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i); JUST_PRINT_sep(); JUST_PRINT(j)
+#define JUST_PRINT11(a, b, c, d, e, f, g, h, i, j, k) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i); JUST_PRINT_sep(); JUST_PRINT(j); JUST_PRINT_sep(); JUST_PRINT(k)
+#define JUST_PRINT12(a, b, c, d, e, f, g, h, i, j, k, l) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i); JUST_PRINT_sep(); JUST_PRINT(j); JUST_PRINT_sep(); JUST_PRINT(k); JUST_PRINT_sep(); JUST_PRINT(l)
+#define JUST_PRINT13(a, b, c, d, e, f, g, h, i, j, k, l, m) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i); JUST_PRINT_sep(); JUST_PRINT(j); JUST_PRINT_sep(); JUST_PRINT(k); JUST_PRINT_sep(); JUST_PRINT(l); JUST_PRINT_sep(); JUST_PRINT(m)
+#define JUST_PRINT14(a, b, c, d, e, f, g, h, i, j, k, l, m, n) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i); JUST_PRINT_sep(); JUST_PRINT(j); JUST_PRINT_sep(); JUST_PRINT(k); JUST_PRINT_sep(); JUST_PRINT(l); JUST_PRINT_sep(); JUST_PRINT(m); JUST_PRINT_sep(); JUST_PRINT(n)
+#define JUST_PRINT15(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i); JUST_PRINT_sep(); JUST_PRINT(j); JUST_PRINT_sep(); JUST_PRINT(k); JUST_PRINT_sep(); JUST_PRINT(l); JUST_PRINT_sep(); JUST_PRINT(m); JUST_PRINT_sep(); JUST_PRINT(n); JUST_PRINT_sep(); JUST_PRINT(o)
+#define JUST_PRINT16(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) JUST_PRINT(a); JUST_PRINT_sep(); JUST_PRINT(b); JUST_PRINT_sep(); JUST_PRINT(c); JUST_PRINT_sep(); JUST_PRINT(d); JUST_PRINT_sep(); JUST_PRINT(e); JUST_PRINT_sep(); JUST_PRINT(f); JUST_PRINT_sep(); JUST_PRINT(g); JUST_PRINT_sep(); JUST_PRINT(h); JUST_PRINT_sep(); JUST_PRINT(i); JUST_PRINT_sep(); JUST_PRINT(j); JUST_PRINT_sep(); JUST_PRINT(k); JUST_PRINT_sep(); JUST_PRINT(l); JUST_PRINT_sep(); JUST_PRINT(m); JUST_PRINT_sep(); JUST_PRINT(n); JUST_PRINT_sep(); JUST_PRINT(o); JUST_PRINT_sep(); JUST_PRINT(p)
 
 #define JUST_ALLOCX(a, b, c, NAME, ...) NAME
 #define JUST_ALLOC2(a, t)               (t*)arena_alloc(a, alignof(t), sizeof(t), 1)
