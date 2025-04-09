@@ -53,12 +53,12 @@ typedef struct {
 #define ABS(x)             (((x) > 0) ? (x) : -(x))
 #define IS_POW2(x)         (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
-#define TODO(...)          JUST8X(__VA_ARGS__, JUST_TODO8, JUST_TODO7, JUST_TODO6, JUST_TODO5, JUST_TODO4, JUST_TODO3, JUST_TODO2, JUST_TODO1)(__VA_ARGS__)
+#define TODO(...)          JUST8X(__VA_ARGS__, JUST_TODO8, JUST_TODO7, JUST_TODO6, JUST_TODO5, JUST_TODO4, JUST_TODO3, JUST_TODO2, JUST_TODO1, 0)(__VA_ARGS__)
 static char* PRINT_SEP = " ";
-#define print(...)         do { JUST16X(__VA_ARGS__, JUST_PRINT16, JUST_PRINT15, JUST_PRINT14, JUST_PRINT13, JUST_PRINT12, JUST_PRINT11, JUST_PRINT10, JUST_PRINT9, JUST_PRINT8, JUST_PRINT7, JUST_PRINT6, JUST_PRINT5, JUST_PRINT4, JUST_PRINT3, JUST_PRINT2, JUST_PRINT1)(__VA_ARGS__); } while(0)
-#define println(...)       do { JUST16X(__VA_ARGS__, JUST_PRINT16, JUST_PRINT15, JUST_PRINT14, JUST_PRINT13, JUST_PRINT12, JUST_PRINT11, JUST_PRINT10, JUST_PRINT9, JUST_PRINT8, JUST_PRINT7, JUST_PRINT6, JUST_PRINT5, JUST_PRINT4, JUST_PRINT3, JUST_PRINT2, JUST_PRINT1)(__VA_ARGS__); putchar('\n'); } while(0)
+#define print(...)         do { JUST16X(__VA_ARGS__, JUST_PRINT16, JUST_PRINT15, JUST_PRINT14, JUST_PRINT13, JUST_PRINT12, JUST_PRINT11, JUST_PRINT10, JUST_PRINT9, JUST_PRINT8, JUST_PRINT7, JUST_PRINT6, JUST_PRINT5, JUST_PRINT4, JUST_PRINT3, JUST_PRINT2, JUST_PRINT1, 0)(__VA_ARGS__); } while(0)
+#define println(...)       do { JUST16X(__VA_ARGS__, JUST_PRINT16, JUST_PRINT15, JUST_PRINT14, JUST_PRINT13, JUST_PRINT12, JUST_PRINT11, JUST_PRINT10, JUST_PRINT9, JUST_PRINT8, JUST_PRINT7, JUST_PRINT6, JUST_PRINT5, JUST_PRINT4, JUST_PRINT3, JUST_PRINT2, JUST_PRINT1, 0)(__VA_ARGS__); putchar('\n'); } while(0)
 
-// Test  -------------------------------------------------------------------------------------------
+// Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
 #define EXPECT(condition) if (!(condition)) printf("FAIL: %s:%d: Test '%s':\n\tCondition: '%s'\n", __FILE__, __LINE__, TEST, #condition)
 #if 0   // Example:
@@ -89,6 +89,9 @@ static char* PRINT_SEP = " ";
         }
 #endif
 
+// Pseudo-random -----------------------------------------------------------------------------------
+f64 rng01(void);
+
 // u8 ----------------------------------------------------------------------------------------------
 #define U8ASCII 127
 INLINE bool u8is_digit (u8 c) { return IS_IN('0', c, '9'); }
@@ -115,7 +118,7 @@ INLINE void arena_destroy(arena* a) { free(a); }
 void*   arena_alloc(arena* a, usize align, usize size, usize count);
 #define JUST_ALLOC2(a, t)    (t*)arena_alloc(a, alignof(t), sizeof(t), 1)
 #define JUST_ALLOC3(a, t, n) (t*)arena_alloc(a, alignof(t), sizeof(t), (usize)(n))
-#define alloc(...) JUST3X(__VA_ARGS__, JUST_ALLOC3, JUST_ALLOC2, 0)(__VA_ARGS__)
+#define alloc(...) JUST3X(__VA_ARGS__, JUST_ALLOC3, JUST_ALLOC2, 0, 0)(__VA_ARGS__)
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
