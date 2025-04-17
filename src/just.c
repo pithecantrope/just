@@ -35,8 +35,7 @@ static u64
 rng(void) {
         static bool seeded = false;
         if (!seeded) {
-                u64 seed = (u64)(time(NULL) + clock());
-                u64 tmp;
+                u64 tmp, seed = (u64)(time(NULL) + clock());
                 for (int i = 0; i < 4; ++i) {
                         seed += 0x9e3779b97f4a7c15;
                         tmp = (seed ^ (seed >> 30)) * 0xbf58476d1ce4e5b9;

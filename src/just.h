@@ -8,42 +8,39 @@
 #include <assert.h>
 #include <stdalign.h>
 #include <stdbool.h>
-#include <stddef.h>
 #include <stdint.h>
 #include <stdio.h>  // printf/putchar/fputs
 #include <stdlib.h> // malloc/free
 #include <string.h> // memXXX
 
 // Types -------------------------------------------------------------------------------------------
-typedef char      byte;
-typedef int8_t    i8;
-typedef uint8_t   u8;
-typedef int16_t   i16;
-typedef uint16_t  u16;
-typedef int32_t   i32;
-typedef uint32_t  u32;
-typedef int64_t   i64;
-typedef uint64_t  u64;
-typedef ptrdiff_t isize;
-#define ISIZE_MIN PTRDIFF_MIN
-#define ISIZE_MAX PTRDIFF_MAX
-typedef size_t    usize;
-typedef float     f32;
-typedef double    f64;
+typedef char     byte;
+typedef int8_t   i8;
+typedef uint8_t  u8;
+typedef int16_t  i16;
+typedef uint16_t u16;
+typedef int32_t  i32;
+typedef uint32_t u32;
+typedef int64_t  i64;
+typedef uint64_t u64;
+typedef float    f32;
+typedef double   f64;
 
 typedef struct {
-        usize used, cap;
+        u64 used, cap;
         byte data[];
 } arena;
 typedef struct {
         arena* arena;
-        usize used;
+        u64 used;
 } arena_savepoint;
 
+typedef u8 ascii;
+
 typedef struct {
-        u8* data;
-        isize len;
-} s8;
+        ascii* data;
+        i64 len;
+} string;
 
 // General -----------------------------------------------------------------------------------------
 #define INLINE             static inline
@@ -91,6 +88,7 @@ static char* PRINT_SEP = " ";
 
 // Pseudo-random -----------------------------------------------------------------------------------
 f64 rng01(void);
+u64 rngint(u64 min, u64 max);
 
 // u8 ----------------------------------------------------------------------------------------------
 #define U8ASCII 127
