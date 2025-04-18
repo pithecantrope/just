@@ -14,7 +14,7 @@ void*
 arena_alloc(arena* a, u64 align, u64 size, u64 count) {
         assert(a != NULL && "Invalid arena");
         assert(size != 0 && "Invalid size");
-        assert(IS_POW2(align) && "Invalid alignment");
+        assert(ISPOW2(align) && "Invalid alignment");
         u64 padding = -(uintptr_t)(a->data + a->used) & (align - 1);
         assert(count <= (a->cap - a->used - padding) / size && "Increase arena capacity");
         void* ptr = a->data + a->used + padding;

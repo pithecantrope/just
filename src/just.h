@@ -24,13 +24,13 @@ typedef uint64_t u64;
 typedef float    f32;
 typedef double   f64;
 
-#define INLINE             static inline
-#define MIN(a, b)          ((a) < (b) ? (a) : (b))
-#define MAX(a, b)          ((a) > (b) ? (a) : (b))
-#define DIFF(a, b)         ((a) > (b) ? (a) - (b) : (b) - (a))
-#define ABS(x)             (((x) > 0) ? (x) : -(x))
-#define IS_POW2(x)         (((x) > 0) && (((x) & ((x) - 1)) == 0))
-#define IS_IN(min, x, max) ((min) <= (x) && (x) <= (max))
+#define INLINE          static inline
+#define MIN(a, b)       ((a) < (b) ? (a) : (b))
+#define MAX(a, b)       ((a) > (b) ? (a) : (b))
+#define DIFF(a, b)      ((a) > (b) ? (a) - (b) : (b) - (a))
+#define ABS(x)          (((x) > 0) ? (x) : -(x))
+#define ISPOW2(x)       (((x) > 0) && (((x) & ((x) - 1)) == 0))
+#define ISIN(lo, x, hi) ((lo) <= (x) && (x) <= (hi))
 
 // arena -------------------------------------------------------------------------------------------
 typedef struct {
@@ -53,6 +53,26 @@ void*   arena_alloc(arena* a, u64 align, u64 size, u64 count);
 #define alloc(...) JUST3X(__VA_ARGS__, JUST_ALLOC3, JUST_ALLOC2, 0, 0)(__VA_ARGS__)
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
+
+// ASCII -------------------------------------------------------------------------------------------
+typedef u8 ascii;
+#define ASCII 128
+#define isascii(c) ISIN(0, c, ASCII - 1)
+INLINE bool  ascii_isdigit (ascii c) { return ISIN('0', c, '9'); }
+INLINE bool  ascii_isupper (ascii c) { return ISIN('A', c, 'Z'); }
+INLINE bool  ascii_islower (ascii c) { return ISIN('a', c, 'z'); }
+INLINE bool  ascii_isprint (ascii c) { return ISIN(' ', c, '~'); }
+INLINE bool  ascii_isgraph (ascii c) { return ISIN(' ' + 1, c, '~'); }
+INLINE bool  ascii_isalpha (ascii c) { return ascii_isupper(c) || ascii_islower(c); }
+INLINE bool  ascii_isalnum (ascii c) { return ascii_isdigit(c) || ascii_isalpha(c); }
+INLINE bool  ascii_isxdigit(ascii c) { return ascii_isdigit(c) || ISIN('A', c, 'F') || ISIN('a', c, 'f'); }
+INLINE bool  ascii_isblank (ascii c) { return c == ' ' || c == '\t'; }
+INLINE bool  ascii_isspace (ascii c) { return ascii_isblank(c) || c == '\r' || c == '\n' || c == '\f' || c == '\v'; }
+INLINE bool  ascii_iscntrl (ascii c) { return c < ' ' || c == ASCII - 1; }
+INLINE bool  ascii_ispunct (ascii c) { return ascii_isgraph(c) && !ascii_isalnum(c); }
+INLINE ascii ascii_upper   (ascii c) { return ascii_islower(c) ? c - ('a' - 'A') : c; }
+INLINE ascii ascii_lower   (ascii c) { return ascii_isupper(c) ? c + ('a' - 'A') : c; }
+INLINE ascii ascii_swapcase(ascii c) { return ascii_isupper(c) ? ascii_lower(c) : (ascii_islower(c) ? ascii_upper(c) : c); }
 
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
