@@ -68,7 +68,7 @@ string_cmp(string s1, string s2) {
         if (s1.len != s2.len) {
                 return s1.len < s2.len ? -1 : 1;
         }
-        i32 cmp = memcmp(s1.data, s2.data, (size_t)s1.len);
+        int cmp = memcmp(s1.data, s2.data, (size_t)s1.len);
         return (cmp > 0) - (cmp < 0);
 }
 
