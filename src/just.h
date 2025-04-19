@@ -54,7 +54,7 @@ void*   arena_alloc(arena* a, u64 align, u64 size, u64 count);
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
-// ASCII -------------------------------------------------------------------------------------------
+// ascii -------------------------------------------------------------------------------------------
 typedef u8 ascii;
 #define ASCII 128
 #define isascii(c) ISIN(0, c, ASCII - 1)
@@ -74,14 +74,20 @@ INLINE ascii ascii_upper   (ascii c) { return ascii_islower(c) ? c - ('a' - 'A')
 INLINE ascii ascii_lower   (ascii c) { return ascii_isupper(c) ? c + ('a' - 'A') : c; }
 INLINE ascii ascii_swapcase(ascii c) { return ascii_isupper(c) ? ascii_lower(c) : (ascii_islower(c) ? ascii_upper(c) : c); }
 
-// String ------------------------------------------------------------------------------------------
+// string ------------------------------------------------------------------------------------------
 typedef struct {
         ascii* data;
         i32 len;
 } string;
-#define FMT_string(string) (string).data, (string).len
-#define PRI_string "{data:%p, len:%" PRId32 "}"
-#define S(s) (string){.data = (ascii*)(s), .len = (i32)(sizeof(s) - 1)}
+#define FMT_string(string) (int)(string).len, (char*)(string).data 
+#define PRI_string "%.*s"
+#define JUST_S1(s) (string){.data = (ascii*)(s), .len = (i32)(sizeof(s) - 1)}
+#define JUST_S2(a, s) string_newlen(a, s, sizeof(s) - 1)
+#define S(...) JUST2X(__VA_ARGS__, JUST_S2, JUST_S1, 0)(__VA_ARGS__)
+
+string string_newlen(arena* a, const char* data, size_t len);
+INLINE string string_new(arena* a, const char* data) { return string_newlen(a, data, strlen(data)); }
+string string_dup(arena* a, string s);
 
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;

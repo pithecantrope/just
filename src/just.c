@@ -21,3 +21,20 @@ arena_alloc(arena* a, u64 align, u64 size, u64 count) {
         a->used += padding + count * size;
         return ptr;
 }
+
+// string ------------------------------------------------------------------------------------------
+string
+string_newlen(arena* a, const char* data, size_t len) {
+        assert(data != NULL && "Invalid data");
+        assert(len <= INT32_MAX && "Invalid len");
+        string s = {.data = alloc(a, ascii, len), .len = (i32)len};
+        memcpy(s.data, data, len);
+        return s;
+}
+
+string
+string_dup(arena* a, string s) {
+        string dup = {.data = alloc(a, ascii, (u64)s.len), .len = s.len};
+        memcpy(dup.data, s.data, (size_t)s.len);
+        return dup;
+}
