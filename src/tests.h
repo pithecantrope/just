@@ -11,6 +11,21 @@ TEST("arena") {
         EXPECT(a->used == 0);
 }
 
+// string ------------------------------------------------------------------------------------------
+string hello = S("hello, world!");
+string Hello = S("Hello, World!");
+// string l = S("l");
+string W = S("W"); 
+
+TEST("string_inject") {
+        string s = string_inject(a, hello, 7, 1, W);
+        printf(PRI_string "\n", FMT_string(s));
+        printf(PRI_arena  "\n", FMT_arena(a));
+        string cat = string_cat(a, s, Hello);
+        printf(PRI_string "\n", FMT_string(cat));
+        printf(PRI_arena  "\n", FMT_arena(a));
+}
+
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep

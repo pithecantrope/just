@@ -82,12 +82,13 @@ typedef struct {
 #define FMT_string(string) (int)(string).len, (char*)(string).data 
 #define PRI_string "%.*s"
 #define JUST_S1(s) (string){.data = (ascii*)(s), .len = (i32)(sizeof(s) - 1)}
-#define JUST_S2(a, s) string_newlen(a, s, sizeof(s) - 1)
+#define JUST_S2(a, s) string_new(a, s, sizeof(s) - 1)
 #define S(...) JUST2X(__VA_ARGS__, JUST_S2, JUST_S1, 0)(__VA_ARGS__)
 
-string string_newlen(arena* a, const char* data, size_t len);
-INLINE string string_new(arena* a, const char* data) { return string_newlen(a, data, strlen(data)); }
+string string_new(arena* a, const char* data, size_t len);
 string string_dup(arena* a, string s);
+string string_cat(arena* a, string head, string tail);
+string string_inject(arena* a, string base, i32 index, i32 len, string inject);
 
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;

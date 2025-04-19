@@ -24,7 +24,7 @@ arena_alloc(arena* a, u64 align, u64 size, u64 count) {
 
 // string ------------------------------------------------------------------------------------------
 string
-string_newlen(arena* a, const char* data, size_t len) {
+string_new(arena* a, const char* data, size_t len) {
         assert(data != NULL && "Invalid data");
         assert(len <= INT32_MAX && "Invalid len");
         string s = {.data = alloc(a, ascii, len), .len = (i32)len};
@@ -37,4 +37,28 @@ string_dup(arena* a, string s) {
         string dup = {.data = alloc(a, ascii, (u64)s.len), .len = s.len};
         memcpy(dup.data, s.data, (size_t)s.len);
         return dup;
+}
+
+string
+string_cat(arena* a, string head, string tail) {
+        assert(head.len <= INT32_MAX - tail.len && "Result string is too large");
+        if ((byte*)(head.data + head.len) != a->data + a->used) {
+                head = string_dup(a, head);
+        }
+        head.len += string_dup(a, tail).len;
+        return head;
+}
+
+string
+string_inject(arena* a, string base, i32 index, i32 len, string inject) {
+        assert(ISIN(0, index, base.len) && "Out of bounds");
+        assert(ISIN(0, len, base.len - index) && "Out of bounds");
+        assert(base.len - len <= INT32_MAX - inject.len && "Result string is too large");
+        string result = {.data = alloc(a, ascii, (u64)(base.len - len + inject.len)),
+                         .len = base.len - len + inject.len};
+        memcpy(result.data, base.data, (u64)index);
+        memcpy(result.data + index, inject.data, (u64)inject.len);
+        memcpy(result.data + index + inject.len, base.data + index + len,
+               (u64)(base.len - index - len));
+        return result;
 }
