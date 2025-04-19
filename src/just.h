@@ -74,6 +74,15 @@ INLINE ascii ascii_upper   (ascii c) { return ascii_islower(c) ? c - ('a' - 'A')
 INLINE ascii ascii_lower   (ascii c) { return ascii_isupper(c) ? c + ('a' - 'A') : c; }
 INLINE ascii ascii_swapcase(ascii c) { return ascii_isupper(c) ? ascii_lower(c) : (ascii_islower(c) ? ascii_upper(c) : c); }
 
+// String ------------------------------------------------------------------------------------------
+typedef struct {
+        ascii* data;
+        i32 len;
+} string;
+#define FMT_string(string) (string).data, (string).len
+#define PRI_string "{data:%p, len:%" PRId32 "}"
+#define S(s) (string){.data = (ascii*)(s), .len = (i32)(sizeof(s) - 1)}
+
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
 #define EXPECT(condition) if (!(condition)) printf("FAIL: %s:%d: Test '%s':\n\tCondition: '%s'\n", __FILE__, __LINE__, TEST, #condition)
