@@ -62,3 +62,26 @@ string_inject(arena* a, string base, i32 index, i32 len, string inject) {
                (u64)(base.len - index - len));
         return result;
 }
+
+int
+string_cmp(string s1, string s2) {
+        if (s1.len != s2.len) {
+                return s1.len < s2.len ? -1 : 1;
+        }
+        i32 cmp = memcmp(s1.data, s2.data, (size_t)s1.len);
+        return (cmp > 0) - (cmp < 0);
+}
+
+int
+string_icmp(string s1, string s2) {
+        if (s1.len != s2.len) {
+                return s1.len < s2.len ? -1 : 1;
+        }
+        for (i32 i = 0; i < s1.len; ++i) {
+                ascii u1 = ascii_upper(s1.data[i]), u2 = ascii_upper(s2.data[i]);
+                if (u1 != u2) {
+                        return u1 < u2 ? -1 : 1;
+                }
+        }
+        return 0;
+}

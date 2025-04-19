@@ -79,7 +79,7 @@ typedef struct {
         ascii* data;
         i32 len;
 } string;
-#define FMT_string(string) (int)(string).len, (char*)(string).data 
+#define FMT_string(string) (int)(string).len, (char*)(string).data
 #define PRI_string "%.*s"
 #define JUST_S1(s) (string){.data = (ascii*)(s), .len = (i32)(sizeof(s) - 1)}
 #define JUST_S2(a, s) string_new(a, s, sizeof(s) - 1)
@@ -89,6 +89,13 @@ string string_new(arena* a, const char* data, size_t len);
 string string_dup(arena* a, string s);
 string string_cat(arena* a, string head, string tail);
 string string_inject(arena* a, string base, i32 index, i32 len, string inject);
+
+int string_cmp (string s1, string s2);
+int string_icmp(string s1, string s2);
+INLINE bool string_eq (string s1, string s2) { return string_cmp (s1, s2) == 0; }
+INLINE bool string_ieq(string s1, string s2) { return string_icmp(s1, s2) == 0; }
+INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
+INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
 
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
