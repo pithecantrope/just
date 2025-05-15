@@ -25,7 +25,7 @@ OBJS := $(SRCS:$(SRC_DIR)/%.c=$(TARGET_DIR)/%.o)
 DEPS := $(OBJS:.o=.d)
 
 .SILENT:
-.PHONY: all release _release debug _debug perf _perf leak _leak cache _cache call _call mem _mem run spell clean compiledb
+.PHONY: all release _release debug _debug perf _perf leak _leak cache _cache call _call mem _mem run spell clean db
 
 all: $(TARGET)
 
@@ -105,7 +105,7 @@ spell:
 clean:
 	rm -rf $(BUILD_DIR)
 
-compiledb: clean
+db: clean
 	bear -- make
 
 -include $(DEPS)
