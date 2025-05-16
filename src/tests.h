@@ -17,14 +17,14 @@ string Hello = S("Hello, World!");
 string l = S("l");
 string W = S("W");
 
-TEST("string_cmp") {
-        EXPECT(string_cmp(Hello, hello) == -1);
-        EXPECT(string_cmp(Hello, l) == 1);
+TEST("string_lcmp") {
+        EXPECT(string_lcmp(Hello, hello) == -1);
+        EXPECT(string_lcmp(l, W) == 1);
 }
 
-TEST("string_icmp") {
-        EXPECT(string_icmp(Hello, hello) == 0);
-        EXPECT(string_icmp(l, W) == -1);
+TEST("string_ilcmp") {
+        EXPECT(string_ilcmp(Hello, hello) == 0);
+        EXPECT(string_ilcmp(l, W) == -1);
 }
 
 TEST("string_startswith") {
@@ -39,15 +39,12 @@ TEST("string_endswith") {
 
 TEST("string_cat") {
         u64 before = a->used;
-        string base = S(a, "");
-        base = string_cat(a, base, W);
-        base = string_cat(a, base, W);
-        base = string_cat(a, base, W);
-        EXPECT(string_eq(base, S("WWW")));
+        EXPECT(string_eq(string_cat(a, string_cat(a, W, W), W), S("WWW")));
         EXPECT(before + 3 == a->used);
 }
 
 TEST("string_inject") {
+        // TODO: use string_any
         EXPECT(string_eq(string_inject(a, string_inject(a, hello, 0, 1, S("H")), 7, 1, W), Hello));
 }
 
