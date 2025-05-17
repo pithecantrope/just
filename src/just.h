@@ -48,8 +48,8 @@ arena* arena_create(u64 capacity);
 INLINE void arena_reset  (arena* a) { a->used = 0; }
 INLINE void arena_destroy(arena* a) { free(a); }
 void*   arena_alloc(arena* a, u64 align, u64 size, u64 count);
-#define JUST_ALLOC2(a, t)    (t*)arena_alloc(a, alignof(t), sizeof(t), 1)
-#define JUST_ALLOC3(a, t, n) (t*)arena_alloc(a, alignof(t), sizeof(t), (u64)(n))
+#define JUST_ALLOC2(arena, type)    (type*)arena_alloc(arena, alignof(type), sizeof(type), 1)
+#define JUST_ALLOC3(arena, type, n) (type*)arena_alloc(arena, alignof(type), sizeof(type), (u64)(n))
 #define alloc(...) JUST3X(__VA_ARGS__, JUST_ALLOC3, JUST_ALLOC2, 0, 0)(__VA_ARGS__)
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
@@ -82,8 +82,8 @@ typedef struct {
 #define PRI_string "%.*s"
 #define FMT_string(string) (int)(string).len, (char*)(string).data
 
-#define JUST_S1(s) (string){.data = (ascii*)(s), .len = (i32)(sizeof(s) - 1)}
-#define JUST_S2(a, s) string_new(a, s, sizeof(s) - 1)
+#define JUST_S1(literal) (string){.data = (ascii*)(literal), .len = (i32)(sizeof(literal) - 1)}
+#define JUST_S2(arena, literal) string_new(arena, literal, sizeof(literal) - 1)
 #define S(...) JUST2X(__VA_ARGS__, JUST_S2, JUST_S1, 0)(__VA_ARGS__)
 string string_new(arena* a, const char* data, size_t len);
 string string_dup(arena* a, string s);
@@ -92,10 +92,8 @@ string string_inject(arena* a, string base, i32 index, i32 len, string inject);
 
 int string_cmp  (string s1, string s2);
 int string_icmp (string s1, string s2);
-int string_lcmp (string s1, string s2);
-int string_ilcmp(string s1, string s2);
-INLINE bool string_eq (string s1, string s2) { return string_lcmp (s1, s2) == 0; }
-INLINE bool string_ieq(string s1, string s2) { return string_ilcmp(s1, s2) == 0; }
+INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
+INLINE bool string_ieq(string s1, string s2) { if (s1.len != s2.len) return false; for (i32 i = 0; i < s1.len; ++i) if (ascii_upper(s1.data[i]) != ascii_upper(s2.data[i])) return false; return true; }
 INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
 INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
 

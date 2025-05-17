@@ -17,14 +17,14 @@ string Hello = S("Hello, World!");
 string l = S("l");
 string W = S("W");
 
-TEST("string_lcmp") {
-        EXPECT(string_lcmp(Hello, hello) == -1);
-        EXPECT(string_lcmp(l, W) == 1);
+TEST("string_cmp") {
+        EXPECT(string_cmp(Hello, hello) == -1);
+        EXPECT(string_cmp(l, W) == 1);
 }
 
-TEST("string_ilcmp") {
-        EXPECT(string_ilcmp(Hello, hello) == 0);
-        EXPECT(string_ilcmp(l, W) == -1);
+TEST("string_icmp") {
+        EXPECT(string_icmp(Hello, hello) == 0);
+        EXPECT(string_icmp(l, W) == -1);
 }
 
 TEST("string_startswith") {
