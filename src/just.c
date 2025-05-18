@@ -1,4 +1,5 @@
 #include "just.h"
+#include <stdarg.h>
 
 // arena -------------------------------------------------------------------------------------------
 arena*
@@ -33,19 +34,33 @@ string_new(arena* a, const char* data, size_t len) {
 }
 
 string
+string_fmt(arena* a, const char* fmt, ...) {
+        string result = S(a, "");
+        va_list args;
+        va_start(args, fmt);
+        va_end(args);
+        return result;
+}
+
+string
 string_dup(arena* a, string s) {
-        string dup = {.data = alloc(a, ascii, s.len), .len = s.len};
-        memcpy(dup.data, s.data, (size_t)s.len);
-        return dup;
+        string result = {.data = alloc(a, ascii, s.len), .len = s.len};
+        memcpy(result.data, s.data, (size_t)s.len);
+        return result;
 }
 
 string
 string_cat(arena* a, string head, string tail) {
         assert(head.len <= INT32_MAX - tail.len && "Result string is too large");
-        if ((byte*)(head.data + head.len) != a->data + a->used) {
-                head = string_dup(a, head);
+        if ((byte*)(head.data + head.len) == (byte*)tail.data
+            && (byte*)(tail.data + tail.len) <= a->data + a->used) {
+                head.len += tail.len;
+        } else {
+                if ((byte*)(head.data + head.len) != a->data + a->used) {
+                        head = string_dup(a, head);
+                }
+                head.len += string_dup(a, tail).len;
         }
-        head.len += string_dup(a, tail).len;
         return head;
 }
 
@@ -78,4 +93,17 @@ string_icmp(string s1, string s2) {
                 }
         }
         return s1.len < s2.len ? -1 : (s1.len > s2.len ? 1 : 0);
+}
+
+bool
+string_ieq(string s1, string s2) {
+        if (s1.len != s2.len) {
+                return false;
+        }
+        for (i32 i = 0; i < s1.len; ++i) {
+                if (ascii_upper(s1.data[i]) != ascii_upper(s2.data[i])) {
+                        return false;
+                }
+        }
+        return true;
 }

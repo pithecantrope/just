@@ -86,6 +86,7 @@ typedef struct {
 #define JUST_S2(arena, literal) string_new(arena, literal, sizeof(literal) - 1)
 #define S(...) JUST2X(__VA_ARGS__, JUST_S2, JUST_S1, 0)(__VA_ARGS__)
 string string_new(arena* a, const char* data, size_t len);
+string string_fmt(arena* a, const char* fmt, ...);
 string string_dup(arena* a, string s);
 string string_cat(arena* a, string head, string tail);
 string string_inject(arena* a, string base, i32 index, i32 len, string inject);
@@ -93,7 +94,7 @@ string string_inject(arena* a, string base, i32 index, i32 len, string inject);
 int string_cmp  (string s1, string s2);
 int string_icmp (string s1, string s2);
 INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
-INLINE bool string_ieq(string s1, string s2) { if (s1.len != s2.len) return false; for (i32 i = 0; i < s1.len; ++i) if (ascii_upper(s1.data[i]) != ascii_upper(s2.data[i])) return false; return true; }
+       bool string_ieq(string s1, string s2);
 INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
 INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
 
