@@ -24,13 +24,16 @@ typedef uint64_t u64;
 typedef float    f32;
 typedef double   f64;
 
-#define INLINE          static inline
 #define MIN(a, b)       ((a) < (b) ? (a) : (b))
 #define MAX(a, b)       ((a) > (b) ? (a) : (b))
 #define DIFF(a, b)      ((a) > (b) ? (a) - (b) : (b) - (a))
 #define ABS(x)          (((x) > 0) ? (x) : -(x))
 #define ISPOW2(x)       (((x) > 0) && (((x) & ((x) - 1)) == 0))
 #define ISIN(lo, x, hi) ((lo) <= (x) && (x) <= (hi))
+#define INLINE static inline
+#define JUST2X(a, b, NAME, ...) NAME
+#define JUST3X(a, b, c, NAME, ...) NAME
+#define JUST4X(a, b, c, d, NAME, ...) NAME
 
 // arena -------------------------------------------------------------------------------------------
 typedef struct {
@@ -67,7 +70,7 @@ INLINE bool  ascii_isalpha (ascii c) { return ascii_isupper(c) || ascii_islower(
 INLINE bool  ascii_isalnum (ascii c) { return ascii_isdigit(c) || ascii_isalpha(c); }
 INLINE bool  ascii_isxdigit(ascii c) { return ascii_isdigit(c) || ISIN('A', c, 'F') || ISIN('a', c, 'f'); }
 INLINE bool  ascii_isblank (ascii c) { return c == ' ' || c == '\t'; }
-INLINE bool  ascii_isspace (ascii c) { return ascii_isblank(c) || c == '\r' || c == '\n' || c == '\f' || c == '\v'; }
+INLINE bool  ascii_isspace (ascii c) { return ascii_isblank(c) || c == '\n' || c == '\r' || c == '\f' || c == '\v'; }
 INLINE bool  ascii_iscntrl (ascii c) { return c < ' ' || c == ASCII; }
 INLINE bool  ascii_ispunct (ascii c) { return ascii_isgraph(c) && !ascii_isalnum(c); }
 INLINE ascii ascii_upper   (ascii c) { return ascii_islower(c) ? c - ('a' - 'A') : c; }
@@ -98,6 +101,20 @@ INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp
 INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
 INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
 
+string string_view(string s, i32 index, i32 len);
+
+static const string SPACE = {(ascii*)" \t\n\r\f\v", 5};
+static const string DIGIT = {(ascii*)"0123456789", 10};
+static const string HEX   = {(ascii*)"0123456789ABCDEFabcdef", 22};
+static const string UPPER = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZ", 26};
+static const string LOWER = {(ascii*)"abcdefghijklmnopqrstuvwxyz", 26};
+static const string ALPHA = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52};
+static const string WORD  = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_", 63};
+static const string PUNCT = {(ascii*)"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~", 32};
+string string_strip (string s, string chars);
+string string_lstrip(string s, string chars);
+string string_rstrip(string s, string chars);
+
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
 #define EXPECT(condition) if (!(condition)) printf("FAIL: %s:%d: Test '%s':\n\tCondition: '%s'\n", __FILE__, __LINE__, TEST, #condition)
@@ -126,10 +143,5 @@ INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix
                 return EXIT_SUCCESS;
         }
 #endif
-
-// Internals ---------------------------------------------------------------------------------------
-#define JUST2X(a, b, NAME, ...) NAME
-#define JUST3X(a, b, c, NAME, ...) NAME
-#define JUST4X(a, b, c, d, NAME, ...) NAME
 
 #endif // JUST_H

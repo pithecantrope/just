@@ -57,6 +57,11 @@ TEST("string_endswith") {
         EXPECT(string_endswith(hello, S("world!")));
 }
 
+TEST("string_strip") {
+        EXPECT(string_eq(string_strip(empty, ALPHA), empty));
+        EXPECT(string_eq(string_strip(S("\tW \n"), SPACE), W));
+}
+
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep
