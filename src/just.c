@@ -35,11 +35,16 @@ string_new(arena* a, const char* data, size_t len) {
 
 string
 string_fmt(arena* a, const char* fmt, ...) {
-        string res = S(a, "");
-        va_list args;
+        va_list args, copy;
         va_start(args, fmt);
+        va_copy(copy, args);
+        i32 len = vsnprintf(NULL, 0, fmt, copy);
+        va_end(copy);
+        assert(len >= 0 && "Invalid format");
+        ascii* data = alloc(a, ascii, len);
+        vsnprintf((char*)data, (size_t)len + 1, fmt, args);
         va_end(args);
-        return res;
+        return (string){.data = data, .len = len};
 }
 
 string

@@ -12,26 +12,28 @@ TEST("arena") {
 }
 
 // string ------------------------------------------------------------------------------------------
+string empty = S("");
 string hello = S("hello, world!");
 string Hello = S("Hello, World!");
 string l = S("l");
 string W = S("W");
 
-TEST("string_cat(near)") {
-        string self = S(a, "hello, ");
-        string s = S(a, "world!");
+TEST("string_fmt") {
+        EXPECT(string_eq(string_fmt(a, ""), empty));
+        EXPECT(string_eq(string_fmt(a, "%s, %s!", "hello", "world"), hello));
+}
+
+TEST("string_cat") {
+        string self = S(a, "hello, "), s = S(a, "world!");
         u64 before = a->used;
         EXPECT(string_eq(string_cat(a, self, s), hello));
         EXPECT(before == a->used);
-}
-
-TEST("string_cat(last)") {
-        u64 before = a->used;
         EXPECT(string_eq(string_cat(a, string_cat(a, W, W), W), S("WWW")));
         EXPECT(before + 3 == a->used);
 }
 
 TEST("string_inject") {
+        EXPECT(string_eq(string_inject(a, empty, 0, 0, empty), empty));
         EXPECT(string_eq(string_inject(a, string_inject(a, hello, 0, 1, S("H")), 7, 1, W), Hello));
 }
 
@@ -46,7 +48,7 @@ TEST("string_icmp") {
 }
 
 TEST("string_startswith") {
-        EXPECT(!string_startswith(hello, l));
+        EXPECT(string_startswith(hello, empty));
         EXPECT(string_startswith(hello, S("hello")));
 }
 
