@@ -35,47 +35,46 @@ string_new(arena* a, const char* data, size_t len) {
 
 string
 string_fmt(arena* a, const char* fmt, ...) {
-        string result = S(a, "");
+        string res = S(a, "");
         va_list args;
         va_start(args, fmt);
         va_end(args);
-        return result;
+        return res;
 }
 
 string
 string_dup(arena* a, string s) {
-        string result = {.data = alloc(a, ascii, s.len), .len = s.len};
-        memcpy(result.data, s.data, (size_t)s.len);
-        return result;
+        string res = {.data = alloc(a, ascii, s.len), .len = s.len};
+        memcpy(res.data, s.data, (size_t)s.len);
+        return res;
 }
 
 string
-string_cat(arena* a, string head, string tail) {
-        assert(head.len <= INT32_MAX - tail.len && "Result string is too large");
-        if ((byte*)(head.data + head.len) == (byte*)tail.data
-            && (byte*)(tail.data + tail.len) <= a->data + a->used) {
-                head.len += tail.len;
+string_cat(arena* a, string self, string s) {
+        assert(self.len <= INT32_MAX - s.len && "Result string is too large");
+        if ((byte*)(self.data + self.len) == (byte*)s.data
+            && (byte*)(s.data + s.len) <= a->data + a->used) {
+                self.len += s.len;
         } else {
-                if ((byte*)(head.data + head.len) != a->data + a->used) {
-                        head = string_dup(a, head);
+                if ((byte*)(self.data + self.len) != a->data + a->used) {
+                        self = string_dup(a, self);
                 }
-                head.len += string_dup(a, tail).len;
+                self.len += string_dup(a, s).len;
         }
-        return head;
+        return self;
 }
 
 string
-string_inject(arena* a, string base, i32 index, i32 len, string inject) {
-        assert(ISIN(0, index, base.len) && "Out of bounds");
-        assert(ISIN(0, len, base.len - index) && "Out of bounds");
-        assert(base.len - len <= INT32_MAX - inject.len && "Result string is too large");
-        i32 result_len = base.len - len + inject.len;
-        string result = {.data = alloc(a, ascii, result_len), .len = result_len};
-        memcpy(result.data, base.data, (size_t)index);
-        memcpy(result.data + index, inject.data, (size_t)inject.len);
-        memcpy(result.data + index + inject.len, base.data + index + len,
-               (size_t)(base.len - index - len));
-        return result;
+string_inject(arena* a, string self, i32 index, i32 len, string s) {
+        assert(ISIN(0, index, self.len) && "Out of bounds");
+        assert(ISIN(0, len, self.len - index) && "Out of bounds");
+        assert(self.len - len <= INT32_MAX - s.len && "Result string is too large");
+        i32 res_len = self.len - len + s.len;
+        string res = {.data = alloc(a, ascii, res_len), .len = res_len};
+        memcpy(res.data, self.data, (size_t)index);
+        memcpy(res.data + index, s.data, (size_t)s.len);
+        memcpy(res.data + index + s.len, self.data + index + len, (size_t)(self.len - index - len));
+        return res;
 }
 
 int

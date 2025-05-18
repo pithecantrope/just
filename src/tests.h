@@ -18,10 +18,10 @@ string l = S("l");
 string W = S("W");
 
 TEST("string_cat(near)") {
-        string head = S(a, "hello, ");
-        string tail = S(a, "world!");
+        string self = S(a, "hello, ");
+        string s = S(a, "world!");
         u64 before = a->used;
-        EXPECT(string_eq(string_cat(a, head, tail), hello));
+        EXPECT(string_eq(string_cat(a, self, s), hello));
         EXPECT(before == a->used);
 }
 

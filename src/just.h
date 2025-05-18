@@ -88,8 +88,8 @@ typedef struct {
 string string_new(arena* a, const char* data, size_t len);
 string string_fmt(arena* a, const char* fmt, ...);
 string string_dup(arena* a, string s);
-string string_cat(arena* a, string head, string tail);
-string string_inject(arena* a, string base, i32 index, i32 len, string inject);
+string string_cat(arena* a, string self, string s);
+string string_inject(arena* a, string self, i32 index, i32 len, string s);
 
 int string_cmp  (string s1, string s2);
 int string_icmp (string s1, string s2);
