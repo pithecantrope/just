@@ -120,35 +120,13 @@ string_view(string s, i32 index, i32 len) {
 }
 
 string
-string_strip(string s, string chars) {
+string_trim(string s, string chars) {
         bool table[ASCII + 1] = {0};
         for (i32 i = 0; i < chars.len; ++i) {
                 table[chars.data[i]] = true;
         }
         ascii *beg = s.data, *end = s.data + s.len;
         for (; beg < end && table[*beg]; ++beg) {}
-        for (; end > beg && table[*(end - 1)]; --end) {}
-        return (string){.data = beg, .len = (i32)(end - beg)};
-}
-
-string
-string_lstrip(string s, string chars) {
-        bool table[ASCII + 1] = {0};
-        for (i32 i = 0; i < chars.len; ++i) {
-                table[chars.data[i]] = true;
-        }
-        ascii *beg = s.data, *end = s.data + s.len;
-        for (; beg < end && table[*beg]; ++beg) {}
-        return (string){.data = beg, .len = (i32)(end - beg)};
-}
-
-string
-string_rstrip(string s, string chars) {
-        bool table[ASCII + 1] = {0};
-        for (i32 i = 0; i < chars.len; ++i) {
-                table[chars.data[i]] = true;
-        }
-        ascii *beg = s.data, *end = s.data + s.len;
         for (; end > beg && table[*(end - 1)]; --end) {}
         return (string){.data = beg, .len = (i32)(end - beg)};
 }

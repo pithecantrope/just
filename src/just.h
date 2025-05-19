@@ -101,6 +101,10 @@ INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp
 INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
 INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
 
+typedef struct {
+        string* data;
+        i32 len;
+} strings;
 string string_view(string s, i32 index, i32 len);
 
 static const string SPACE = {(ascii*)" \t\n\r\f\v", 5};
@@ -111,9 +115,10 @@ static const string LOWER = {(ascii*)"abcdefghijklmnopqrstuvwxyz", 26};
 static const string ALPHA = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52};
 static const string WORD  = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_", 63};
 static const string PUNCT = {(ascii*)"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~", 32};
-string string_strip (string s, string chars);
-string string_lstrip(string s, string chars);
-string string_rstrip(string s, string chars);
+string string_trim (string s, string chars);
+string string_erase (arena* a, string s, string chars);
+strings string_splitany(arena* a, string s, string chars);
+string string_replaceany(arena* a, string s, string chars);
 
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
