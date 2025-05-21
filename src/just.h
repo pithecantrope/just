@@ -62,53 +62,6 @@ INLINE ascii ascii_upper   (ascii c) { return ascii_islower(c) ? c - ('a' - 'A')
 INLINE ascii ascii_lower   (ascii c) { return ascii_isupper(c) ? c + ('a' - 'A') : c; }
 INLINE ascii ascii_swapcase(ascii c) { return ascii_isupper(c) ? ascii_lower(c) : (ascii_islower(c) ? ascii_upper(c) : c); }
 
-// string ------------------------------------------------------------------------------------------
-typedef struct {
-        ascii* data;
-        i32 len;
-} string;
-#define PRI_string "%.*s"
-#define FMT_string(string) (int)(string).len, (char*)(string).data
-typedef struct {
-        string* data;
-        i32 len;
-} strings;
-
-#define JUST_S1(literal) (string){.data = (ascii*)(literal), .len = (i32)(sizeof(literal) - 1)}
-#define JUST_S2(arena, literal) string_new(arena, literal, sizeof(literal) - 1)
-#define S(...) JUST2X(__VA_ARGS__, JUST_S2, JUST_S1, 0)(__VA_ARGS__)
-string string_new(arena* a, const char* data, size_t len);
-string string_fmt(arena* a, const char* fmt, ...);
-string string_dup(arena* a, string s);
-string string_cat(arena* a, string self, string s);
-string string_inject(arena* a, string self, i32 index, i32 len, string s);
-
-bool string_in(string self, string s);
-int string_cmp  (string s1, string s2);
-int string_icmp (string s1, string s2);
-INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
-       bool string_ieq(string s1, string s2);
-INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
-INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
-
-string string_view(string s, i32 index, i32 len);
-
-static const string SPACE = {(ascii*)" \t\n\r\f\v", 5};
-static const string DIGIT = {(ascii*)"0123456789", 10};
-static const string HEX   = {(ascii*)"0123456789ABCDEFabcdef", 22};
-static const string UPPER = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZ", 26};
-static const string LOWER = {(ascii*)"abcdefghijklmnopqrstuvwxyz", 26};
-static const string ALPHA = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", 52};
-static const string WORD  = {(ascii*)"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_", 63};
-static const string PUNCT = {(ascii*)"!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~", 32};
-string string_lstrip(string s, string chars);
-string string_rstrip(string s, string chars);
-string string_strip (string s, string chars);
-
-string string_erase (arena* a, string s, string chars);
-strings string_splitany(arena* a, string s, string chars);
-string string_replaceany(arena* a, string s, string chars);
-
 // Testing  ----------------------------------------------------------------------------------------
 #define TEST(name) TEST = name;
 #define EXPECT(condition) if (!(condition)) printf("FAIL: %s:%d: Test '%s':\n\tCondition: '%s'\n", __FILE__, __LINE__, TEST, #condition)

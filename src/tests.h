@@ -11,52 +11,6 @@ TEST("arena") {
         EXPECT(a->used == 0);
 }
 
-// string ------------------------------------------------------------------------------------------
-string empty = S("");
-string hello = S("hello, world!");
-string Hello = S("Hello, World!");
-string l = S("l");
-string W = S("W");
-
-TEST("string_fmt") {
-        EXPECT(string_eq(string_fmt(a, ""), empty));
-        EXPECT(string_eq(string_fmt(a, "%s, %s!", "hello", "world"), hello));
-}
-
-TEST("string_cat") {
-        string self = S(a, "hello, "), s = S(a, "world!");
-        u64 before = a->used;
-        EXPECT(string_eq(string_cat(a, self, s), hello));
-        EXPECT(before == a->used);
-        EXPECT(string_eq(string_cat(a, string_cat(a, W, W), W), S("WWW")));
-        EXPECT(before + 3 == a->used);
-}
-
-TEST("string_inject") {
-        EXPECT(string_eq(string_inject(a, empty, 0, 0, empty), empty));
-        EXPECT(string_eq(string_inject(a, string_inject(a, hello, 0, 1, S("H")), 7, 1, W), Hello));
-}
-
-TEST("string_cmp") {
-        EXPECT(string_cmp(Hello, hello) == -1);
-        EXPECT(string_cmp(l, W) == 1);
-}
-
-TEST("string_icmp") {
-        EXPECT(string_icmp(Hello, hello) == 0);
-        EXPECT(string_icmp(l, W) == -1);
-}
-
-TEST("string_startswith") {
-        EXPECT(string_startswith(hello, empty));
-        EXPECT(string_startswith(hello, S("hello")));
-}
-
-TEST("string_endswith") {
-        EXPECT(!string_endswith(hello, l));
-        EXPECT(string_endswith(hello, S("world!")));
-}
-
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep
