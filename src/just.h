@@ -59,6 +59,31 @@ string string_dup(arena* a, string s);
 string string_cat(arena* a, string self, string s);
 string string_inject(arena* a, string self, int index, int len, string s);
 
+int string_cmp  (string s1, string s2);
+int string_icmp (string s1, string s2);
+INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
+       bool string_ieq(string s1, string s2);
+INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
+INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
+
+string string_view(string s, int index, int len);
+
+static const string SPACE = {.data = " \t\n\r\f\v", .len = 5};
+static const string DIGIT = {.data = "0123456789", .len = 10};
+static const string HEX   = {.data = "0123456789ABCDEFabcdef", .len = 22};
+static const string UPPER = {.data = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", .len = 26};
+static const string LOWER = {.data = "abcdefghijklmnopqrstuvwxyz", .len = 26};
+static const string ALPHA = {.data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", .len = 52};
+static const string WORD  = {.data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_", .len = 63};
+static const string PUNCT = {.data = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~", .len = 32};
+string  string_lstrip(string s, string chars);
+string  string_rstrip(string s, string chars);
+string  string_strip (string s, string chars);
+int     string_fany  (string s, string chars); // scan
+int     string_rfany (string s, string chars); // rscan
+string  string_remap (arena* a, string s, string chars, string new); // swap
+strings string_cut   (arena* a, string s, string chars); // chop
+
 INLINE bool string_isdigit (string s) { for (int i = 0; i < s.len; ++i) { if (!isdigit (s.data[i])) return false; } return true; }
 INLINE bool string_isupper (string s) { for (int i = 0; i < s.len; ++i) { if (!isupper (s.data[i])) return false; } return true; }
 INLINE bool string_islower (string s) { for (int i = 0; i < s.len; ++i) { if (!islower (s.data[i])) return false; } return true; }
