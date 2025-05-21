@@ -50,6 +50,10 @@ typedef struct {
         string* data;
         int len;
 } strings;
+typedef struct {
+        int* data;
+        int len;
+} ints;
 
 #define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
 #define Sa(literal, arena) string_new(arena, literal, sizeof(literal) - 1)
@@ -65,8 +69,13 @@ INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp
        bool string_ieq(string s1, string s2);
 INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
 INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
+       bool string_contains  (string s, string sub); // in
 
-string string_view(string s, int index, int len);
+string  string_view  (string s, int index, int len);
+int     string_find  (string s, string sub);
+int     string_rfind (string s, string sub);
+int     string_count (string s, string sub);
+strings string_split(arena* a, string s, string sep);
 
 static const string SPACE = {.data = " \t\n\r\f\v", .len = 5};
 static const string DIGIT = {.data = "0123456789", .len = 10};
