@@ -11,6 +11,18 @@ TEST("arena") {
         EXPECT(a->used == 0);
 }
 
+// string ------------------------------------------------------------------------------------------
+// string empty = S("");
+string hello = S("hello, world!");
+string Hello = S("Hello, World!");
+// string l = S("l");
+// string W = S("W");
+
+TEST("string_istitle") {
+        EXPECT(!string_istitle(hello));
+        EXPECT(string_istitle(Hello));
+}
+
 arena_destroy(a);
 #else
 // IWYU pragma: begin_keep

@@ -51,6 +51,14 @@ typedef struct {
         int len;
 } strings;
 
+#define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
+#define Sa(literal, arena) string_new(arena, literal, sizeof(literal) - 1)
+string string_new(arena* a, const char* data, size_t len);
+string string_fmt(arena* a, const char* fmt, ...);
+string string_dup(arena* a, string s);
+string string_cat(arena* a, string self, string s);
+string string_inject(arena* a, string self, int index, int len, string s);
+
 INLINE bool string_isdigit (string s) { for (int i = 0; i < s.len; ++i) { if (!isdigit (s.data[i])) return false; } return true; }
 INLINE bool string_isupper (string s) { for (int i = 0; i < s.len; ++i) { if (!isupper (s.data[i])) return false; } return true; }
 INLINE bool string_islower (string s) { for (int i = 0; i < s.len; ++i) { if (!islower (s.data[i])) return false; } return true; }
