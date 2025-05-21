@@ -4,9 +4,9 @@ arena* a = arena_create(1 << 16);
 // arena -------------------------------------------------------------------------------------------
 TEST("arena") {
         arena_savepoint save = arena_save(a);
-        alloc(a, f32, 3);
-        alloc(a, f64);
-        EXPECT(a->used == 3 * 8);
+        alloc(a, char);
+        alloc(a, int, 2);
+        EXPECT(a->used == 3 * sizeof(int));
         arena_restore(save);
         EXPECT(a->used == 0);
 }
