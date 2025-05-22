@@ -50,13 +50,9 @@ typedef struct {
         string* data;
         int len;
 } strings;
-typedef struct {
-        int* data;
-        int len;
-} ints;
 
 #define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
-#define Sa(literal, arena) string_new(arena, literal, sizeof(literal) - 1)
+#define SA(literal, arena) string_new(arena, literal, sizeof(literal) - 1)
 string string_new(arena* a, const char* data, size_t len);
 string string_fmt(arena* a, const char* fmt, ...);
 string string_dup(arena* a, string s);
@@ -71,11 +67,17 @@ INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix
 INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
        bool string_contains  (string s, string sub); // in
 
+string string_ljust  (arena* a, string s, int width, char c);
+string string_rjust  (arena* a, string s, int width, char c);
+string string_center (arena* a, string s, int width, char c); // or len
+string string_join   (arena* a, strings ss); // const char* instead of string when needed
+
 string  string_view  (string s, int index, int len);
 int     string_find  (string s, string sub);
 int     string_rfind (string s, string sub);
 int     string_count (string s, string sub);
 strings string_split(arena* a, string s, string sep);
+// splitlines
 
 static const string SPACE = {.data = " \t\n\r\f\v", .len = 5};
 static const string DIGIT = {.data = "0123456789", .len = 10};
@@ -88,7 +90,7 @@ static const string PUNCT = {.data = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~", .len 
 string  string_lstrip(string s, string chars);
 string  string_rstrip(string s, string chars);
 string  string_strip (string s, string chars);
-int     string_fany  (string s, string chars); // scan
+int     string_fany  (string s, string chars); // scan search
 int     string_rfany (string s, string chars); // rscan
 string  string_remap (arena* a, string s, string chars, string new); // swap
 strings string_cut   (arena* a, string s, string chars); // chop
