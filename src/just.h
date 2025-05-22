@@ -21,7 +21,7 @@
 // arena -------------------------------------------------------------------------------------------
 typedef struct {
         size_t used, cap;
-        char data[];
+        char* data;
 } arena;
 #define PRI_arena "{used:%zu, cap:%zu, data:%p}"
 #define FMT_arena(arena) (arena)->used, (arena)->cap, (arena)->data
@@ -32,7 +32,7 @@ typedef struct {
 
 arena* arena_create(size_t capacity);
 INLINE void arena_reset  (arena* a) { a->used = 0; }
-INLINE void arena_destroy(arena* a) { free(a); }
+INLINE void arena_destroy(arena* a) { free(a->data); a->used = a->cap = 0; a->data = NULL; free(a); }
 void*   arena_alloc(arena* a, size_t align, size_t size, size_t count);
 #define alloc(arena, type)     (type*)arena_alloc(arena, alignof(type), sizeof(type), 1)
 #define allocn(arena, type, n) (type*)arena_alloc(arena, alignof(type), sizeof(type), (size_t)(n))
@@ -64,13 +64,13 @@ string string_rjust (arena* a, string s, int width, char fill);
 string string_file(arena* a, const char* path);
 
 char* string_z(arena* a, string s);
-long               string_tol  (string s, int base);
-unsigned long      string_toul (string s, int base);
-long long          string_toll (string s, int base);
-unsigned long long string_toull(string s, int base);
-float              string_tof  (string s);
-double             string_tod  (string s);
-long double        string_told (string s);
+long               string_tol  (arena scratch, string s, int base);
+unsigned long      string_toul (arena scratch, string s, int base);
+long long          string_toll (arena scratch, string s, int base);
+unsigned long long string_toull(arena scratch, string s, int base);
+float              string_tof  (arena scratch, string s);
+double             string_tod  (arena scratch, string s);
+long double        string_told (arena scratch, string s);
 
 int string_cmp (string s1, string s2);
 int string_icmp(string s1, string s2);

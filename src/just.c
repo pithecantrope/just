@@ -6,10 +6,10 @@
 // arena -------------------------------------------------------------------------------------------
 arena*
 arena_create(size_t capacity) {
-        assert(sizeof(arena) <= SIZE_MAX - capacity);
-        arena* a = malloc(sizeof(arena) + capacity);
+        arena* a = malloc(sizeof(arena));
         assert(a != NULL);
-        *a = (arena){.cap = capacity};
+        *a = (arena){.cap = capacity, .data = malloc(capacity)};
+        assert(a->data != NULL);
         return a;
 }
 
