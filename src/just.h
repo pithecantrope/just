@@ -123,33 +123,4 @@ INLINE string string_lower     (string s) { for (int i = 0; i < s.len; ++i) { s.
        string string_capitalize(string s);
        string string_title     (string s);
 
-// Testing  ----------------------------------------------------------------------------------------
-#define TEST(name) TEST = name;
-#define EXPECT(condition) if (!(condition)) printf("FAIL: %s:%d: Test '%s':\n\tCondition: '%s'\n", __FILE__, __LINE__, TEST, #condition)
-#if 0   // Example:
-// tests.h:
-        #ifdef TESTS
-        bool t = true;
-        TEST("true") {
-                EXPECT(t);
-        }
-        TEST("false") {
-                EXPECT(!t);
-        }
-        #else
-        // IWYU pragma: begin_keep
-        #include "just.h"
-        // IWYU pragma: end_keep
-        #endif
-// main.c:
-        #include "tests.h"
-        int main(void) {
-                const char* TEST;
-        #define TESTS
-        #include "tests.h"
-        #undef TESTS
-                return EXIT_SUCCESS;
-        }
-#endif
-
 #endif // JUST_H
