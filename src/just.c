@@ -27,10 +27,29 @@ arena_alloc(arena* a, size_t align, size_t size, size_t count) {
 
 // string ------------------------------------------------------------------------------------------
 string
+string_new(arena* a, const char* data, size_t len) {
+        assert(data != NULL && "Invalid data");
+        assert(len <= INT_MAX && "Invalid len");
+        string s = {.data = allocn(a, char, len), .len = (int)len};
+        memcpy(s.data, data, len);
+        return s;
+}
+
+string
 string_dup(arena* a, string s) {
         string res = {.data = allocn(a, char, s.len), .len = s.len};
         memcpy(res.data, s.data, (size_t)s.len);
         return res;
+}
+
+char*
+string_z(arena* a, string s) {
+        if (s.data + s.len != a->data + a->used) {
+                s = string_dup(a, s);
+        }
+        alloc(a, char);
+        s.data[s.len] = '\0';
+        return s.data;
 }
 
 bool

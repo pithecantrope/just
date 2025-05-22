@@ -5,6 +5,7 @@ main(int argc, char* argv[]) {
         (void)argc;
         (void)argv;
         arena* a = arena_create(1 << 16);
+        size_t before;
 
         // arena -------------------------------------------------------------------------------------------
         arena_savepoint save = arena_save(a);
@@ -20,6 +21,11 @@ main(int argc, char* argv[]) {
         string Hello = S("Hello, World!");
         string l = S("l");
         string W = S("W");
+
+        // string_z
+        before = a->used;
+        assert(strcmp("Egor Afanasin", string_z(a, string_new(a, "Egor Afanasin", 13))) == 0);
+        assert(before + 14 == a->used);
 
         // string_istitle
         assert(!string_istitle(l));
