@@ -26,6 +26,13 @@ arena_alloc(arena* a, size_t align, size_t size, size_t count) {
 }
 
 // string ------------------------------------------------------------------------------------------
+string
+string_dup(arena* a, string s) {
+        string res = {.data = allocn(a, char, s.len), .len = s.len};
+        memcpy(res.data, s.data, (size_t)s.len);
+        return res;
+}
+
 bool
 string_istitle(string s) {
         for (int i = 0; i < s.len; ++i) {
@@ -44,7 +51,7 @@ string_istitle(string s) {
 }
 
 string
-s8capitalize(string s) {
+string_capitalize(string s) {
         if (s.len > 0) {
                 s.data[0] = (char)toupper(s.data[0]);
                 for (int i = 1; i < s.len; ++i) {

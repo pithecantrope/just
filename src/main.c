@@ -18,19 +18,19 @@ main(int argc, char* argv[]) {
         string empty = S("");
         string hello = S("hello, world!");
         string Hello = S("Hello, World!");
-        // string l = S("l");
+        string l = S("l");
         string W = S("W");
 
         // string_istitle
-        assert(!string_istitle(hello));
+        assert(!string_istitle(l));
         assert(string_istitle(Hello));
 
         // string_capitalize
-        assert(string_eq(W, string_capitalize(string_dup(a, S("w")))));
-        assert(!string_eq(Hello, string_capitalize(string_dup(a, Hello))));
+        assert(string_eq(empty, string_capitalize(string_dup(a, empty))));
+        assert(!string_eq(Hello, string_capitalize(string_dup(a, hello))));
 
         // string_title
-        assert(string_eq(empty, string_title(empty)));
+        assert(string_eq(W, string_title(string_dup(a, S("w")))));
         assert(string_eq(Hello, string_title(string_dup(a, hello))));
 
         arena_destroy(a);

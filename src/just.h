@@ -35,7 +35,7 @@ INLINE void arena_reset  (arena* a) { a->used = 0; }
 INLINE void arena_destroy(arena* a) { free(a); }
 void*   arena_alloc(arena* a, size_t align, size_t size, size_t count);
 #define alloc(arena, type)     (type*)arena_alloc(arena, alignof(type), sizeof(type), 1)
-#define allocn(arena, type, n) (type*)arena_alloc(arena, alignof(type), sizeof(type), n)
+#define allocn(arena, type, n) (type*)arena_alloc(arena, alignof(type), sizeof(type), (size_t)(n))
 INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
 
