@@ -64,14 +64,6 @@ string string_rjust (arena* a, string s, int width, char fill);
 string string_file(arena* a, const char* path);
 
 char* string_z(arena* a, string s);
-long               string_tol  (arena scratch, string s, int base);
-unsigned long      string_toul (arena scratch, string s, int base);
-long long          string_toll (arena scratch, string s, int base);
-unsigned long long string_toull(arena scratch, string s, int base);
-float              string_tof  (arena scratch, string s);
-double             string_tod  (arena scratch, string s);
-long double        string_told (arena scratch, string s);
-
 int string_cmp (string s1, string s2);
 int string_icmp(string s1, string s2);
 INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
