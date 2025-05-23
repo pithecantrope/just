@@ -41,13 +41,17 @@ main(int argc, char* argv[]) {
         assert(string_eq(S("l####"), string_ljust(a, string_dup(a, l), 5, '#')));
         assert(before + 5 == a->used);
         
+        // string_rjust
+        assert(string_eq(W, string_rjust(a, W, 1, '!')));
+        assert(string_eq(S("****l"), string_rjust(a, l, 5, '*')));
+
         // string_center
         assert(string_eq(S(" W "), string_center(a, W, 3, ' ')));
         assert(string_eq(S("W!"), string_center(a, W, 2, '!')));
 
-        // string_rjust
-        assert(string_eq(W, string_rjust(a, W, 1, '!')));
-        assert(string_eq(S("****l"), string_rjust(a, l, 5, '*')));
+        // string_file
+        string f = string_file(a, "test.txt");
+        assert(string_eq(f, S("Egor Afanasin\njust\nBecause it just works\n")));
 
         // string_z
         before = a->used;

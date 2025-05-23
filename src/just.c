@@ -43,6 +43,7 @@ string_fmt(arena* a, const char* fmt, ...) {
         int len = vsnprintf(NULL, 0, fmt, copy);
         va_end(copy);
         assert(len >= 0 && "Invalid format");
+
         char* data = allocn(a, char, len);
         vsnprintf(data, (size_t)len + 1, fmt, args);
         va_end(args);
@@ -99,13 +100,14 @@ string_ljust(arena* a, string mut_s, int width, char fill) {
 string
 string_rjust(arena* a, string s, int width, char fill) {
         assert(s.len <= width && "Invalid width");
-        char* data = allocn(a, char, width - s.len);
+        char* data = allocn(a, char, width);
         memset(data, fill, (size_t)(width - s.len));
-        string_dup(a, s);
+        memcpy(data + (width - s.len), s.data, (size_t)s.len);
         return (string){.data = data, .len = width};
 }
 
-string string_center(arena* a, string s, int width, char fill) {
+string
+string_center(arena* a, string s, int width, char fill) {
         assert(s.len <= width && "Invalid width");
         char* data = allocn(a, char, width);
         int left = (width - s.len) >> 1;
@@ -113,6 +115,32 @@ string string_center(arena* a, string s, int width, char fill) {
         memcpy(data + left, s.data, (size_t)s.len);
         memset(data + left + s.len, fill, (size_t)(width - left - s.len));
         return (string){.data = data, .len = width};
+}
+
+string
+string_file(arena* a, const char* path) {
+        FILE* file = fopen(path,
+#if defined(__linux__)
+                           "rbe"
+#else
+                           "rb"
+#endif
+        );
+        assert(file != NULL && "Invalid path");
+
+        int err = fseek(file, 0, SEEK_END); // Non-standard
+        assert(err == 0);
+        long len = ftell(file);
+        assert(len != -1L && len != 0);
+        assert(len <= INT_MAX && "File is too large");
+        rewind(file);
+
+        char* data = allocn(a, char, len);
+        size_t read = fread(data, sizeof(char), (size_t)len, file);
+        assert((size_t)len == read);
+        err = fclose(file);
+        assert(err == 0);
+        return (string){.data = data, .len = (int)len};
 }
 
 char*
