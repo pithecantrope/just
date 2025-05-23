@@ -70,6 +70,19 @@ string_cat(arena* a, string base, string s) {
         return base;
 }
 
+string
+string_inject(arena* a, string base, int index, int len, string s) {
+        assert(ISIN(0, index, base.len) && "Out of bounds");
+        assert(ISIN(0, len, base.len - index) && "Out of bounds");
+        assert(base.len - len <= INT_MAX - s.len && "Result string is too large");
+        int res_len = base.len - len + s.len;
+        string res = {.data = allocn(a, char, res_len), .len = res_len};
+        memcpy(res.data, base.data, (size_t)index);
+        memcpy(res.data + index, s.data, (size_t)s.len);
+        memcpy(res.data + index + s.len, base.data + index + len, (size_t)(base.len - index - len));
+        return res;
+}
+
 char*
 string_z(arena* a, string s) {
         if (s.data + s.len != a->data + a->used) {

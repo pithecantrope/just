@@ -29,8 +29,12 @@ main(int argc, char* argv[]) {
         s = SA(a, "hello, ");
         assert(string_eq(hello, string_cat(a, s, SA(a, "world!"))));
         assert(before + 13 == a->used);
-        assert(string_eq(string_cat(a, string_cat(a, W, W), W), S("WWW")));
+        assert(string_eq(S("WWW"), string_cat(a, string_cat(a, W, W), W)));
         assert(before + 16 == a->used);
+
+        // string_inject
+        assert(string_eq(empty, string_inject(a, empty, 0, 0, empty)));
+        assert(string_eq(Hello, string_inject(a, string_inject(a, hello, 0, 1, S("H")), 7, 1, W)));
 
         // string_z
         before = a->used;
