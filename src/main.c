@@ -70,6 +70,19 @@ main(int argc, char* argv[]) {
         assert(!string_ieq(l, W));
         assert(string_ieq(Hello, hello));
 
+        // string_startswith
+        assert(string_startswith(empty, empty));
+        assert(string_startswith(f, S("Egor Afanasin")));
+
+        // string_endswith
+        assert(string_endswith(W, empty));
+        assert(string_endswith(f, S("works\n")));
+
+        // string_in
+        assert(string_in(empty, empty));
+        assert(string_in(S("\xFF"), S("\xFF")));
+        assert(string_in(S("just"), f));
+
         // string_istitle
         assert(!string_istitle(l));
         assert(string_istitle(Hello));

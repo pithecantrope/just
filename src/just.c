@@ -184,6 +184,30 @@ string_ieq(string s1, string s2) {
 }
 
 bool
+string_in(string sub, string s) {
+        if (sub.len > s.len) {
+                return false;
+        }
+        if (sub.len == 0) {
+                return true;
+        }
+        int last[UCHAR_MAX + 1]; // Horspool algorithm
+        memset(last, -1, sizeof(last));
+        for (int i = 0; i < sub.len - 1; ++i) {
+                last[(unsigned char)sub.data[i]] = i;
+        }
+        for (int i = 0; i <= s.len - sub.len;
+             i += sub.len - 1 - last[(unsigned char)s.data[i + sub.len - 1]]) {
+                for (int j = sub.len - 1; sub.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                return true;
+                        }
+                }
+        }
+        return false;
+}
+
+bool
 string_istitle(string s) {
         for (int i = 0; i < s.len; ++i) {
                 for (; i < s.len && !isalpha(s.data[i]); ++i) {}
