@@ -56,6 +56,20 @@ string_dup(arena* a, string s) {
         return res;
 }
 
+string
+string_cat(arena* a, string base, string s) {
+        assert(base.len <= INT_MAX - s.len && "Result string is too large");
+        if (base.data + base.len == s.data && s.data + s.len <= a->data + a->used) {
+                base.len += s.len;
+                return base;
+        }
+        if (base.data + base.len != a->data + a->used) {
+                base = string_dup(a, base);
+        }
+        base.len += string_dup(a, s).len;
+        return base;
+}
+
 char*
 string_z(arena* a, string s) {
         if (s.data + s.len != a->data + a->used) {

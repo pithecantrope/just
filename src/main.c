@@ -16,15 +16,21 @@ main(int argc, char* argv[]) {
         assert(a->used == 0);
 
         // string ------------------------------------------------------------------------------------------
-        string empty = S("");
-        string hello = S("hello, world!");
-        string Hello = S("Hello, World!");
-        string l = S("l");
-        string W = S("W");
+        string empty = S(""), s;
+        string hello = S("hello, world!"), Hello = S("Hello, World!");
+        string l = S("l"), W = S("W");
 
         // string_fmt
         string_eq(empty, string_fmt(a, ""));
         string_eq(hello, string_fmt(a, "%s, %s!", "hello", "world"));
+
+        // string_cat
+        before = a->used;
+        s = SA(a, "hello, ");
+        assert(string_eq(hello, string_cat(a, s, SA(a, "world!"))));
+        assert(before + 13 == a->used);
+        assert(string_eq(string_cat(a, string_cat(a, W, W), W), S("WWW")));
+        assert(before + 16 == a->used);
 
         // string_z
         before = a->used;

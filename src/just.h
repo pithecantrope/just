@@ -52,7 +52,7 @@ typedef struct {
         int len;
 } strings;
 #define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
-#define SA(literal, arena) string_new(arena, literal, sizeof(literal) - 1)
+#define SA(arena, literal) string_new(arena, literal, sizeof(literal) - 1)
 
 string string_new(arena* a, const char* data, size_t len);
 string string_fmt(arena* a, const char* fmt, ...);
