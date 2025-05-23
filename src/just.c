@@ -96,6 +96,15 @@ string_ljust(arena* a, string mut_s, int width, char fill) {
         return mut_s;
 }
 
+string
+string_rjust(arena* a, string s, int width, char fill) {
+        assert(s.len <= width && "Invalid width");
+        char* data = allocn(a, char, width - s.len);
+        memset(data, fill, (size_t)(width - s.len));
+        string_dup(a, s);
+        return (string){.data = data, .len = width};
+}
+
 char*
 string_z(arena* a, string mut_s) {
         if (mut_s.data + mut_s.len != a->data + a->used) {

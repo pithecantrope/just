@@ -37,8 +37,13 @@ main(int argc, char* argv[]) {
         assert(string_eq(Hello, string_inject(a, string_inject(a, hello, 0, 1, S("H")), 7, 1, W)));
 
         // string_ljust
-        assert(string_eq(W, string_ljust(a, string_dup(a, W), 1, '!')));
+        before = a->used;
         assert(string_eq(S("l####"), string_ljust(a, string_dup(a, l), 5, '#')));
+        assert(before + 5 == a->used);
+
+        // string_rjust
+        assert(string_eq(W, string_rjust(a, W, 1, '!')));
+        assert(string_eq(S("****l"), string_rjust(a, l, 5, '*')));
 
         // string_z
         before = a->used;
@@ -51,7 +56,9 @@ main(int argc, char* argv[]) {
 
         // string_capitalize
         assert(string_eq(empty, string_capitalize(string_dup(a, empty))));
-        assert(!string_eq(Hello, string_capitalize(string_dup(a, hello))));
+        s = SA(a, "w");
+        string_capitalize(s);
+        assert(string_eq(W, s));
 
         // string_title
         assert(string_eq(W, string_title(string_dup(a, S("w")))));
