@@ -40,7 +40,7 @@ main(int argc, char* argv[]) {
         before = a->used;
         assert(string_eq(S("l####"), string_ljust(a, string_dup(a, l), 5, '#')));
         assert(before + 5 == a->used);
-        
+
         // string_rjust
         assert(string_eq(W, string_rjust(a, W, 1, '!')));
         assert(string_eq(S("****l"), string_rjust(a, l, 5, '*')));
@@ -57,6 +57,18 @@ main(int argc, char* argv[]) {
         before = a->used;
         assert(strcmp("Egor Afanasin", string_z(a, string_new(a, "Egor Afanasin", 13))) == 0);
         assert(before + 14 == a->used);
+
+        // string_cmp
+        assert(string_cmp(Hello, hello) == -1);
+        assert(string_cmp(l, W) == 1);
+
+        // string_icmp
+        assert(string_icmp(Hello, hello) == 0);
+        assert(string_icmp(l, W) == -1);
+
+        // string_ieq
+        assert(!string_ieq(l, W));
+        assert(string_ieq(Hello, hello));
 
         // string_istitle
         assert(!string_istitle(l));

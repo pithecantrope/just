@@ -153,6 +153,36 @@ string_z(arena* a, string mut_s) {
         return mut_s.data;
 }
 
+int
+string_cmp(string s1, string s2) {
+        int cmp = memcmp(s1.data, s2.data, (size_t)MIN(s1.len, s2.len));
+        return cmp ? (cmp < 0 ? -1 : 1) : (s1.len < s2.len ? -1 : (s1.len > s2.len ? 1 : 0));
+}
+
+int
+string_icmp(string s1, string s2) {
+        for (int i = 0; i < MIN(s1.len, s2.len); ++i) {
+                char c1 = (char)toupper(s1.data[i]), c2 = (char)toupper(s2.data[i]);
+                if (c1 != c2) {
+                        return c1 < c2 ? -1 : 1;
+                }
+        }
+        return s1.len < s2.len ? -1 : (s1.len > s2.len ? 1 : 0);
+}
+
+bool
+string_ieq(string s1, string s2) {
+        if (s1.len != s2.len) {
+                return false;
+        }
+        for (int i = 0; i < s1.len; ++i) {
+                if (toupper(s1.data[i]) != toupper(s2.data[i])) {
+                        return false;
+                }
+        }
+        return true;
+}
+
 bool
 string_istitle(string s) {
         for (int i = 0; i < s.len; ++i) {
