@@ -40,6 +40,10 @@ main(int argc, char* argv[]) {
         before = a->used;
         assert(string_eq(S("l####"), string_ljust(a, string_dup(a, l), 5, '#')));
         assert(before + 5 == a->used);
+        
+        // string_center
+        assert(string_eq(S(" W "), string_center(a, W, 3, ' ')));
+        assert(string_eq(S("W!"), string_center(a, W, 2, '!')));
 
         // string_rjust
         assert(string_eq(W, string_rjust(a, W, 1, '!')));

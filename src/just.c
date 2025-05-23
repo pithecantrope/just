@@ -105,6 +105,16 @@ string_rjust(arena* a, string s, int width, char fill) {
         return (string){.data = data, .len = width};
 }
 
+string string_center(arena* a, string s, int width, char fill) {
+        assert(s.len <= width && "Invalid width");
+        char* data = allocn(a, char, width);
+        int left = (width - s.len) >> 1;
+        memset(data, fill, (size_t)left);
+        memcpy(data + left, s.data, (size_t)s.len);
+        memset(data + left + s.len, fill, (size_t)(width - left - s.len));
+        return (string){.data = data, .len = width};
+}
+
 char*
 string_z(arena* a, string mut_s) {
         if (mut_s.data + mut_s.len != a->data + a->used) {
