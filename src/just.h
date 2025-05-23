@@ -57,14 +57,14 @@ typedef struct {
 string string_new(arena* a, const char* data, size_t len);
 string string_fmt(arena* a, const char* fmt, ...);
 string string_dup(arena* a, string s);
-string string_cat(arena* a, string base, string s);
+string string_cat(arena* a, string mut_base, string mut_s);
 string string_inject(arena* a, string base, int index, int len, string s);
-string string_ljust (arena* a, string s, int width, char fill);
+string string_ljust (arena* a, string mut_s, int width, char fill);
 string string_rjust (arena* a, string s, int width, char fill);
 string string_center(arena* a, string s, int width, char fill);
 string string_file(arena* a, const char* path);
 
-char* string_z(arena* a, string s);
+char* string_z(arena* a, string mut_s);
 int string_cmp (string s1, string s2);
 int string_icmp(string s1, string s2);
 INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
@@ -111,9 +111,9 @@ INLINE bool string_isspace (string s) { for (int i = 0; i < s.len; ++i) { if (!i
 INLINE bool string_iscntrl (string s) { for (int i = 0; i < s.len; ++i) { if (!iscntrl (s.data[i])) return false; } return true; }
 INLINE bool string_ispunct (string s) { for (int i = 0; i < s.len; ++i) { if (!ispunct (s.data[i])) return false; } return true; }
        bool string_istitle (string s);
-INLINE string string_upper     (string s) { for (int i = 0; i < s.len; ++i) { s.data[i] = (char)toupper(s.data[i]); } return s; }
-INLINE string string_lower     (string s) { for (int i = 0; i < s.len; ++i) { s.data[i] = (char)tolower(s.data[i]); } return s; }
-       string string_capitalize(string s);
-       string string_title     (string s);
+INLINE string string_upper     (string mut_s) { for (int i = 0; i < mut_s.len; ++i) { mut_s.data[i] = (char)toupper(mut_s.data[i]); } return mut_s; }
+INLINE string string_lower     (string mut_s) { for (int i = 0; i < mut_s.len; ++i) { mut_s.data[i] = (char)tolower(mut_s.data[i]); } return mut_s; }
+       string string_capitalize(string mut_s);
+       string string_title     (string mut_s);
 
 #endif // JUST_H

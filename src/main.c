@@ -36,6 +36,10 @@ main(int argc, char* argv[]) {
         assert(string_eq(empty, string_inject(a, empty, 0, 0, empty)));
         assert(string_eq(Hello, string_inject(a, string_inject(a, hello, 0, 1, S("H")), 7, 1, W)));
 
+        // string_ljust
+        assert(string_eq(W, string_ljust(a, string_dup(a, W), 1, '!')));
+        assert(string_eq(S("l####"), string_ljust(a, string_dup(a, l), 5, '#')));
+
         // string_z
         before = a->used;
         assert(strcmp("Egor Afanasin", string_z(a, string_new(a, "Egor Afanasin", 13))) == 0);

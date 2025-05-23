@@ -57,17 +57,18 @@ string_dup(arena* a, string s) {
 }
 
 string
-string_cat(arena* a, string base, string s) {
-        assert(base.len <= INT_MAX - s.len && "Result string is too large");
-        if (base.data + base.len == s.data && s.data + s.len <= a->data + a->used) {
-                base.len += s.len;
-                return base;
+string_cat(arena* a, string mut_base, string mut_s) {
+        assert(mut_base.len <= INT_MAX - mut_s.len && "Result string is too large");
+        if (mut_base.data + mut_base.len == mut_s.data
+            && mut_s.data + mut_s.len <= a->data + a->used) {
+                mut_base.len += mut_s.len;
+                return mut_base;
         }
-        if (base.data + base.len != a->data + a->used) {
-                base = string_dup(a, base);
+        if (mut_base.data + mut_base.len != a->data + a->used) {
+                mut_base = string_dup(a, mut_base);
         }
-        base.len += string_dup(a, s).len;
-        return base;
+        mut_base.len += string_dup(a, mut_s).len;
+        return mut_base;
 }
 
 string
@@ -83,14 +84,26 @@ string_inject(arena* a, string base, int index, int len, string s) {
         return res;
 }
 
+string
+string_ljust(arena* a, string mut_s, int width, char fill) {
+        assert(mut_s.len <= width && "Invalid width");
+        if (mut_s.data + mut_s.len != a->data + a->used) {
+                mut_s = string_dup(a, mut_s);
+        }
+        allocn(a, char, width - mut_s.len);
+        memset(mut_s.data + mut_s.len, fill, (size_t)(width - mut_s.len));
+        mut_s.len = width;
+        return mut_s;
+}
+
 char*
-string_z(arena* a, string s) {
-        if (s.data + s.len != a->data + a->used) {
-                s = string_dup(a, s);
+string_z(arena* a, string mut_s) {
+        if (mut_s.data + mut_s.len != a->data + a->used) {
+                mut_s = string_dup(a, mut_s);
         }
         alloc(a, char);
-        s.data[s.len] = '\0';
-        return s.data;
+        mut_s.data[mut_s.len] = '\0';
+        return mut_s.data;
 }
 
 bool
@@ -111,25 +124,25 @@ string_istitle(string s) {
 }
 
 string
-string_capitalize(string s) {
-        if (s.len > 0) {
-                s.data[0] = (char)toupper(s.data[0]);
-                for (int i = 1; i < s.len; ++i) {
-                        s.data[i] = (char)tolower(s.data[i]);
+string_capitalize(string mut_s) {
+        if (mut_s.len > 0) {
+                mut_s.data[0] = (char)toupper(mut_s.data[0]);
+                for (int i = 1; i < mut_s.len; ++i) {
+                        mut_s.data[i] = (char)tolower(mut_s.data[i]);
                 }
         }
-        return s;
+        return mut_s;
 }
 
 string
-string_title(string s) {
-        for (int i = 0; i < s.len; ++i) {
-                for (; i < s.len && !isalpha(s.data[i]); ++i) {}
-                s.data[i] = (char)toupper(s.data[i]);
+string_title(string mut_s) {
+        for (int i = 0; i < mut_s.len; ++i) {
+                for (; i < mut_s.len && !isalpha(mut_s.data[i]); ++i) {}
+                mut_s.data[i] = (char)toupper(mut_s.data[i]);
                 ++i;
-                for (; i < s.len && isalpha(s.data[i]); ++i) {
-                        s.data[i] = (char)tolower(s.data[i]);
+                for (; i < mut_s.len && isalpha(mut_s.data[i]); ++i) {
+                        mut_s.data[i] = (char)tolower(mut_s.data[i]);
                 }
         }
-        return s;
+        return mut_s;
 }
