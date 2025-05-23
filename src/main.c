@@ -22,6 +22,10 @@ main(int argc, char* argv[]) {
         string l = S("l");
         string W = S("W");
 
+        // string_fmt
+        string_eq(empty, string_fmt(a, ""));
+        string_eq(hello, string_fmt(a, "%s, %s!", "hello", "world"));
+
         // string_z
         before = a->used;
         assert(strcmp("Egor Afanasin", string_z(a, string_new(a, "Egor Afanasin", 13))) == 0);

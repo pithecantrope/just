@@ -1,4 +1,5 @@
 // @author Egor Afanasin <afanasin.egor@gmail.com>
+// clang-format off
 #ifndef JUST_H
 #define JUST_H
 
@@ -58,9 +59,9 @@ string string_fmt(arena* a, const char* fmt, ...);
 string string_dup(arena* a, string s);
 string string_cat(arena* a, string base, string s);
 string string_inject(arena* a, string base, int index, int len, string s);
-string string_center(arena* a, string s, int width, char fill);
 string string_ljust (arena* a, string s, int width, char fill);
 string string_rjust (arena* a, string s, int width, char fill);
+string string_center(arena* a, string s, int width, char fill);
 string string_file(arena* a, const char* path);
 
 char* string_z(arena* a, string s);
@@ -76,7 +77,7 @@ string string_view(string s, int index, int len);
 int string_find (string s, string sub);
 int string_rfind(string s, string sub);
 int string_count(string s, string sub);
-string string_replace(arena* a, string s, string fill);
+string string_replace(arena* a, string s, string old, string new);
 strings string_split(arena* a, string s, string sep);
 string string_join(arena* a, strings ss, string sep);
 

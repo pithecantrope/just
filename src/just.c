@@ -36,6 +36,20 @@ string_new(arena* a, const char* data, size_t len) {
 }
 
 string
+string_fmt(arena* a, const char* fmt, ...) {
+        va_list args, copy;
+        va_start(args, fmt);
+        va_copy(copy, args);
+        int len = vsnprintf(NULL, 0, fmt, copy);
+        va_end(copy);
+        assert(len >= 0 && "Invalid format");
+        char* data = allocn(a, char, len);
+        vsnprintf(data, (size_t)len + 1, fmt, args);
+        va_end(args);
+        return (string){.data = data, .len = len};
+}
+
+string
 string_dup(arena* a, string s) {
         string res = {.data = allocn(a, char, s.len), .len = s.len};
         memcpy(res.data, s.data, (size_t)s.len);
