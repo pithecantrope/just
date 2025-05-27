@@ -72,6 +72,18 @@ string_fmt(arena* a, const char* fmt, ...) {
 }
 
 string
+string_trim(string s, string chars) {
+        bool table[ASCII + 1] = {0};
+        for (i32 i = 0; i < chars.len; ++i) {
+                table[chars.data[i]] = true;
+        }
+        ascii *beg = s.data, *end = s.data + s.len;
+        for (; beg < end && table[*beg]; ++beg) {}
+        for (; end > beg && table[*(end - 1)]; --end) {}
+        return (string){.data = beg, .len = (i32)(end - beg)};
+}
+
+string
 string_dup(arena* a, string s) {
         string res = {.data = allocn(a, char, s.len), .len = s.len};
         memcpy(res.data, s.data, (size_t)s.len);
