@@ -35,6 +35,27 @@ string_new(arena* a, const char* data, size_t len) {
         return s;
 }
 
+// int nob_sb_appendf(Nob_String_Builder *sb, const char *fmt, ...)
+// {
+//     va_list args;
+
+//     va_start(args, fmt);
+//     int n = vsnprintf(NULL, 0, fmt, args);
+//     va_end(args);
+
+//     // NOTE: the new_capacity needs to be +1 because of the null terminator.
+//     // However, further below we increase sb->count by n, not n + 1.
+//     // This is because we don't want the sb to include the null terminator. The user can always sb_append_null() if they want it
+//     nob_da_reserve(sb, sb->count + n + 1);
+//     char *dest = sb->items + sb->count;
+//     va_start(args, fmt);
+//     vsnprintf(dest, n+1, fmt, args);
+//     va_end(args);
+
+//     sb->count += n;
+
+//     return n;
+// }
 string
 string_fmt(arena* a, const char* fmt, ...) {
         va_list args, copy;
@@ -117,6 +138,41 @@ string_center(arena* a, string s, int width, char fill) {
         return (string){.data = data, .len = width};
 }
 
+
+// bool nob_read_entire_file(const char *path, Nob_String_Builder *sb)
+// {
+//     bool result = true;
+
+//     FILE *f = fopen(path, "rb");
+//     if (f == NULL)                 nob_return_defer(false);
+//     if (fseek(f, 0, SEEK_END) < 0) nob_return_defer(false);
+// #ifndef _WIN32
+//     long m = ftell(f);
+// #else
+//     long long m = _ftelli64(f);
+// #endif
+//     if (m < 0)                     nob_return_defer(false);
+//     if (fseek(f, 0, SEEK_SET) < 0) nob_return_defer(false);
+
+//     size_t new_count = sb->count + m;
+//     if (new_count > sb->capacity) {
+//         sb->items = NOB_REALLOC(sb->items, new_count);
+//         NOB_ASSERT(sb->items != NULL && "Buy more RAM lool!!");
+//         sb->capacity = new_count;
+//     }
+
+//     fread(sb->items + sb->count, m, 1, f);
+//     if (ferror(f)) {
+//         // TODO: Afaik, ferror does not set errno. So the error reporting in defer is not correct in this case.
+//         nob_return_defer(false);
+//     }
+//     sb->count = new_count;
+
+// defer:
+//     if (!result) nob_log(NOB_ERROR, "Could not read file %s: %s", path, strerror(errno));
+//     if (f) fclose(f);
+//     return result;
+// }
 string
 string_file(arena* a, const char* path) {
         FILE* file = fopen(path,
@@ -206,6 +262,8 @@ string_in(string sub, string s) {
         }
         return false;
 }
+
+// TODO:
 
 bool
 string_istitle(string s) {

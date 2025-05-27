@@ -59,11 +59,28 @@ string string_fmt(arena* a, const char* fmt, ...);
 string string_dup(arena* a, string s);
 string string_cat(arena* a, string mut_base, string mut_s);
 string string_inject(arena* a, string base, int index, int len, string s);
-string string_ljust (arena* a, string mut_s, int width, char fill);
-string string_rjust (arena* a, string s, int width, char fill);
-string string_center(arena* a, string s, int width, char fill);
+// string string_ljust (arena* a, string mut_s, int width, char fill);
+// string string_rjust (arena* a, string s, int width, char fill);
+// string string_center(arena* a, string s, int width, char fill);
 string string_file(arena* a, const char* path);
 
+
+// it's weird that string copy can be changed!
+
+// It is an equivalent of shift command from bash. It basically pops an element from
+// the beginning of a sized array.
+#define nob_shift(xs, xs_sz) (NOB_ASSERT((xs_sz) > 0), (xs_sz)--, *(xs)++)
+// string_shift?
+
+
+// maybe we need to bring back X
+// delete like is_punct cus who will use it ? usually it's simple character not string
+// concat vs prepend
+// how to iterate through string? so i'll reverse it or filter
+// don't add bloat cus it's very hard. Focus on JUST. on simple and concise
+// string_squeeze can put some value but it's 0.1%. Do 80%
+// TODO: wrap index len in ISIN
+string string_sub(string mut_s, int index, int len);
 char* string_z(arena* a, string mut_s);
 int string_cmp (string s1, string s2);
 int string_icmp(string s1, string s2);
@@ -71,9 +88,8 @@ INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp
        bool string_ieq(string s1, string s2);
 INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
 INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
-       bool string_in        (string sub, string s);
+       // bool string_in        (string sub, string s);
 
-string string_view(string s, int index, int len);
 int string_find (string s, string sub);
 int string_rfind(string s, string sub);
 int string_count(string s, string sub);
