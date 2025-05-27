@@ -83,6 +83,41 @@ string_trim(string s, string chars) {
         return (string){.data = beg, .len = (i32)(end - beg)};
 }
 
+s8
+s8repeat(arena* a, s8 s, isize n) {
+        JUST_ASSERT(s.data != NULL && 0 < s.len && "Invalid string");
+        assert(IS_IN(0, n, ISIZE_MAX / s.len) && "Result string is too large");
+        s8 repeat = {.data = alloc(a, u8, s.len * n), .len = s.len * n};
+        for (isize i = 0; i < n; ++i) {
+                memcpy(repeat.data + i * s.len, s.data, (usize)s.len);
+        }
+        return repeat;
+}
+s8s
+s8split(arena* a, s8 s, s8 sep) {
+        assert(s.data && 0 < s.len && "Invalid string");
+        assert(IS_IN(1, sep.len, s.len) && "Invalid separator");
+        s8s arr = {.data = alloc(a, s8, 0), .len = 0};
+        isize last[U8ASCII], prev = 0;
+        memset(last, -1, sizeof(isize) * U8ASCII);
+        for (isize i = 0; i < sep.len - 1; ++i) {
+                last[sep.data[i]] = i;
+        }
+        for (isize i = 0; i <= s.len - sep.len; i += sep.len - 1 - last[s.data[i + sep.len - 1]]) {
+                for (isize j = sep.len - 1; sep.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                *(s8*)alloc(a, s8) = (s8){.data = s.data + prev, .len = i - prev};
+                                ++arr.len;
+                                prev = i + sep.len;
+                                break;
+                        }
+                }
+        }
+        *(s8*)alloc(a, s8) = (s8){.data = s.data + prev, .len = s.len - prev};
+        ++arr.len;
+        return arr;
+}
+
 string
 string_dup(arena* a, string s) {
         string res = {.data = allocn(a, char, s.len), .len = s.len};
