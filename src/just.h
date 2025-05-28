@@ -24,8 +24,8 @@ typedef struct {
         size_t used, cap;
         char* data;
 } arena;
-#define PRI_arena "{used:%zu, cap:%zu, data:%p}"
-#define FMT_arena(arena) (arena)->used, (arena)->cap, (arena)->data
+#define PRIA "{used:%zu, cap:%zu, data:%p}"
+#define FMTA(arena) (arena)->used, (arena)->cap, (arena)->data
 typedef struct {
         arena* arena;
         size_t used;
@@ -45,8 +45,8 @@ typedef struct {
         const char* data;
         int len;
 } string;
-#define PRI_string "%.*s"
-#define FMT_string(string) (string).len, (string).data
+#define PRIS "%.*s"
+#define FMTS(string) (string).len, (string).data
 #define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
 
 string string_new(arena* a, const char* str, size_t len);
