@@ -37,7 +37,7 @@ INLINE void arena_destroy(arena* a) { assert(a != NULL); free(a->data); free(a);
 void*   arena_alloc(arena* a, size_t align, size_t size, size_t count);
 #define alloc(arena, type)     (type*)arena_alloc(arena, alignof(type), sizeof(type), 1)
 #define allocn(arena, type, n) (type*)arena_alloc(arena, alignof(type), sizeof(type), (size_t)(n))
-INLINE arena_savepoint arena_save(arena* a) { assert(a != NULL); return (arena_savepoint){.arena = a, .used = a->used}; }
+INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { assert(save.arena != NULL); save.arena->used = save.used; }
 
 // string ------------------------------------------------------------------------------------------
@@ -53,8 +53,8 @@ string string_new(arena* a, const char* str, size_t len);
 char*  string_str(arena* a, string s);
 string string_fmt(arena* a, const char* fmt, ...);
 string string_cat(arena* a, string base, string s);
-string string_ins(arena* a, string base, int index, string s);
-string string_fit(arena* a, string s, int len);
+string string_insert(arena* a, string base, int index, string s);
+string string_repeat(arena* a, string s, int len);
 string string_file(arena* a, const char* path);
 
 string string_sub(string s, int index, int len);

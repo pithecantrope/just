@@ -61,8 +61,10 @@ string_cat(arena* a, string base, string s) {
         return (string){.data = data, .len = base.len + s.len};
 }
 
+string string_insert(arena* a, string base, int index, string s);
+
 string
-string_fit(arena* a, string s, int len) {
+string_repeat(arena* a, string s, int len) {
         assert(s.len > 0 && "Invalid s");
         assert(len > s.len && "Invalid len");
         char* data = allocn(a, char, len);
@@ -78,6 +80,6 @@ string string_file(arena* a, const char* path);
 string
 string_sub(string s, int index, int len) {
         assert(ISIN(0, index, s.len) && "Invalid index");
-        assert(ISIN(0, len, s.len - index) && "Invalid len");
-        return (string){.data = s.data + index, .len = len - index};
+        assert(ISIN(-1, len, s.len - index) && "Invalid len");
+        return (string){.data = s.data + index, .len = (len == -1 ? s.len : len) - index};
 }
