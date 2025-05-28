@@ -1,10 +1,10 @@
 // @author Egor Afanasin <afanasin.egor@gmail.com>
+
 // clang-format off
 #ifndef JUST_H
 #define JUST_H
 
 #include <assert.h>
-#include <ctype.h>
 #include <stdalign.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -32,104 +32,12 @@ typedef struct {
 } arena_savepoint;
 
 arena* arena_create(size_t capacity);
-INLINE void arena_reset  (arena* a) { a->used = 0; }
-INLINE void arena_destroy(arena* a) { free(a->data); a->used = a->cap = 0; a->data = NULL; free(a); }
+INLINE void arena_reset  (arena* a) { assert(a != NULL); a->used = 0; }
+INLINE void arena_destroy(arena* a) { assert(a != NULL); free(a->data); free(a); }
 void*   arena_alloc(arena* a, size_t align, size_t size, size_t count);
 #define alloc(arena, type)     (type*)arena_alloc(arena, alignof(type), sizeof(type), 1)
 #define allocn(arena, type, n) (type*)arena_alloc(arena, alignof(type), sizeof(type), (size_t)(n))
-INLINE arena_savepoint arena_save(arena* a) { return (arena_savepoint){.arena = a, .used = a->used}; }
-INLINE void arena_restore(arena_savepoint save) { save.arena->used = save.used; }
-
-// string ------------------------------------------------------------------------------------------
-typedef struct {
-        char* data;
-        int len;
-} string;
-#define PRI_string "%.*s"
-#define FMT_string(string) (string).len, (string).data
-typedef struct {
-        string* data;
-        int len;
-} strings;
-#define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
-#define SA(arena, literal) string_new(arena, literal, sizeof(literal) - 1)
-
-string string_new(arena* a, const char* data, size_t len);
-string string_fmt(arena* a, const char* fmt, ...);
-string string_dup(arena* a, string s);
-string string_cat(arena* a, string mut_base, string mut_s);
-string string_inject(arena* a, string base, int index, int len, string s);
-// string string_ljust (arena* a, string mut_s, int width, char fill);
-// string string_rjust (arena* a, string s, int width, char fill);
-// string string_center(arena* a, string s, int width, char fill);
-string string_file(arena* a, const char* path);
-
-
-// it's weird that string copy can be changed!
-
-// It is an equivalent of shift command from bash. It basically pops an element from
-// the beginning of a sized array.
-#define nob_shift(xs, xs_sz) (NOB_ASSERT((xs_sz) > 0), (xs_sz)--, *(xs)++)
-// string_shift?
-
-
-// maybe we need to bring back X
-// delete like is_punct cus who will use it ? usually it's simple character not string
-// concat vs prepend
-// how to iterate through string? so i'll reverse it or filter
-// don't add bloat cus it's very hard. Focus on JUST. on simple and concise
-// string_squeeze can put some value but it's 0.1%. Do 80%
-// TODO: wrap index len in ISIN
-string string_sub(string mut_s, int index, int len);
-char* string_z(arena* a, string mut_s);
-int string_cmp (string s1, string s2);
-int string_icmp(string s1, string s2);
-INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
-       bool string_ieq(string s1, string s2);
-INLINE bool string_startswith(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
-INLINE bool string_endswith  (string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
-       // bool string_in        (string sub, string s);
-
-int string_find (string s, string sub);
-int string_rfind(string s, string sub);
-int string_count(string s, string sub);
-string string_replace(arena* a, string s, string old, string new);
-strings string_split(arena* a, string s, string sep);
-string string_join(arena* a, strings ss, string sep);
-
-static const string LINE  = {.data = "\n\r", .len = 2};
-static const string SPACE = {.data = " \t\n\r\f\v", .len = 5};
-static const string DIGIT = {.data = "0123456789", .len = 10};
-static const string HEX   = {.data = "0123456789ABCDEFabcdef", .len = 22};
-static const string UPPER = {.data = "ABCDEFGHIJKLMNOPQRSTUVWXYZ", .len = 26};
-static const string LOWER = {.data = "abcdefghijklmnopqrstuvwxyz", .len = 26};
-static const string ALPHA = {.data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", .len = 52};
-static const string WORD  = {.data = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_", .len = 63};
-static const string PUNCT = {.data = "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~", .len = 32};
-string  string_lstrip(string s, string chars);
-string  string_rstrip(string s, string chars);
-string  string_strip (string s, string chars);
-int     string_scan  (string s, string chars);
-int     string_rscan (string s, string chars);
-int     string_total (string s, string chars);
-strings string_cut   (arena* a, string s, string chars);
-
-INLINE bool string_isdigit (string s) { for (int i = 0; i < s.len; ++i) { if (!isdigit (s.data[i])) return false; } return true; }
-INLINE bool string_isupper (string s) { for (int i = 0; i < s.len; ++i) { if (!isupper (s.data[i])) return false; } return true; }
-INLINE bool string_islower (string s) { for (int i = 0; i < s.len; ++i) { if (!islower (s.data[i])) return false; } return true; }
-INLINE bool string_isprint (string s) { for (int i = 0; i < s.len; ++i) { if (!isprint (s.data[i])) return false; } return true; }
-INLINE bool string_isgraph (string s) { for (int i = 0; i < s.len; ++i) { if (!isgraph (s.data[i])) return false; } return true; }
-INLINE bool string_isalpha (string s) { for (int i = 0; i < s.len; ++i) { if (!isalpha (s.data[i])) return false; } return true; }
-INLINE bool string_isalnum (string s) { for (int i = 0; i < s.len; ++i) { if (!isalnum (s.data[i])) return false; } return true; }
-INLINE bool string_isxdigit(string s) { for (int i = 0; i < s.len; ++i) { if (!isxdigit(s.data[i])) return false; } return true; }
-INLINE bool string_isblank (string s) { for (int i = 0; i < s.len; ++i) { if (!isblank (s.data[i])) return false; } return true; }
-INLINE bool string_isspace (string s) { for (int i = 0; i < s.len; ++i) { if (!isspace (s.data[i])) return false; } return true; }
-INLINE bool string_iscntrl (string s) { for (int i = 0; i < s.len; ++i) { if (!iscntrl (s.data[i])) return false; } return true; }
-INLINE bool string_ispunct (string s) { for (int i = 0; i < s.len; ++i) { if (!ispunct (s.data[i])) return false; } return true; }
-       bool string_istitle (string s);
-INLINE string string_upper     (string mut_s) { for (int i = 0; i < mut_s.len; ++i) { mut_s.data[i] = (char)toupper(mut_s.data[i]); } return mut_s; }
-INLINE string string_lower     (string mut_s) { for (int i = 0; i < mut_s.len; ++i) { mut_s.data[i] = (char)tolower(mut_s.data[i]); } return mut_s; }
-       string string_capitalize(string mut_s);
-       string string_title     (string mut_s);
+INLINE arena_savepoint arena_save(arena* a) { assert(a != NULL); return (arena_savepoint){.arena = a, .used = a->used}; }
+INLINE void arena_restore(arena_savepoint save) { assert(save.arena != NULL); save.arena->used = save.used; }
 
 #endif // JUST_H
