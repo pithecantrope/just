@@ -16,11 +16,6 @@ main(int argc, char* argv[]) {
         assert(a->used == 0);
 
         // string ----------------------------------------------------------------------------------
-        // string empty = S(""), s;
-        // string hello = S("hello, world!"), Hello = S("Hello, World!");
-        // string l = S("l"), W = S("W");
-        assert(strcmp("Egor Afanasin", string_str(a, S("Egor Afanasin"))) == 0);
-
         arena_destroy(a);
         return EXIT_SUCCESS;
 }

@@ -26,19 +26,3 @@ arena_alloc(arena* a, size_t align, size_t size, size_t count) {
 }
 
 // string ------------------------------------------------------------------------------------------
-string
-string_new(arena* a, const char* str, size_t len) {
-        assert(str != NULL && "Invalid str");
-        assert(len <= INT_MAX && "Invalid len");
-        char* data = allocn(a, char, len);
-        memcpy(data, str, len);
-        return (string){.data = data, .len = (int)len};
-}
-
-char*
-string_str(arena* a, string s) {
-        char* str = allocn(a, char, s.len + 1);
-        memcpy(str, s.data, (size_t)s.len);
-        str[s.len] = '\0';
-        return str;
-}
