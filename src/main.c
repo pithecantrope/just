@@ -27,6 +27,10 @@ main(int argc, char* argv[]) {
                          string_cat(a, s, string_cat(a, S(" works"), S("!")))));
         assert(used + 22 == a->used);
 
+        // string_fit
+        assert(string_eq(S("   "), string_fit(a, S(" "), 3)));
+        assert(string_eq(S("#-#-#"), string_fit(a, S("#-"), 5)));
+
         (void)empty;
         arena_destroy(a);
         return EXIT_SUCCESS;

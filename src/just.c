@@ -61,7 +61,17 @@ string_cat(arena* a, string base, string s) {
         return (string){.data = data, .len = base.len + s.len};
 }
 
-string string_fill(arena* a, string s, int len);
+string
+string_fit(arena* a, string s, int len) {
+        assert(s.len > 0 && "Invalid s");
+        assert(len > s.len && "Invalid len");
+        char* data = allocn(a, char, len);
+        for (int i = 0; i < len / s.len; ++i) {
+                memcpy(data + i * s.len, s.data, (size_t)s.len);
+        }
+        memcpy(data + len - len % s.len, s.data, (size_t)(len % s.len));
+        return (string){.data = data, .len = len};
+}
 
 string string_file(arena* a, const char* path);
 

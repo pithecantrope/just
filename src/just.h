@@ -47,16 +47,22 @@ typedef struct {
 } string;
 #define PRI_string "%.*s"
 #define FMT_string(string) (string).len, (string).data
-
 #define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
+
 string string_new(arena* a, const char* str, size_t len);
 char*  string_str(arena* a, string s);
+string string_fmt(arena* a, const char* fmt, ...);
 string string_cat(arena* a, string base, string s);
-string string_fill(arena* a, string s, int len);
+string string_ins(arena* a, string base, int index, string s);
+string string_fit(arena* a, string s, int len);
 string string_file(arena* a, const char* path);
-string string_sub(string s, int index, int len);
 
+string string_sub(string s, int index, int len);
+int string_cmp (string s1, string s2);
+int string_icmp(string s1, string s2);
 INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
        bool string_ieq(string s1, string s2);
+INLINE bool string_beg(string s, string prefix) { return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0; }
+INLINE bool string_end(string s, string suffix) { return (s.len >= suffix.len) && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0; }
 
 #endif // JUST_H
