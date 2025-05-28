@@ -51,10 +51,12 @@ typedef struct {
 #define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
 string string_new(arena* a, const char* str, size_t len);
 char*  string_str(arena* a, string s);
-string string_dup(arena* a, string s);
 string string_cat(arena* a, string base, string s);
 string string_fill(arena* a, string s, int len);
 string string_file(arena* a, const char* path);
 string string_sub(string s, int index, int len);
+
+INLINE bool string_eq (string s1, string s2) { return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0; }
+       bool string_ieq(string s1, string s2);
 
 #endif // JUST_H

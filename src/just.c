@@ -44,13 +44,22 @@ string_str(arena* a, string s) {
 }
 
 string
-string_dup(arena* a, string s) {
-        char* data = allocn(a, char, s.len);
-        memcpy(data, s.data, (size_t)s.len);
-        return (string){.data = data, .len = s.len};
+string_cat(arena* a, string base, string s) {
+        assert(base.len <= INT_MAX - s.len && "Result string is too large");
+        if (base.data + base.len == s.data) {
+                base.len += s.len;
+                return base;
+        }
+        if (base.data + base.len == a->data + a->used) {
+                memcpy(allocn(a, char, s.len), s.data, (size_t)s.len);
+                base.len += s.len;
+                return base;
+        }
+        char* data = allocn(a, char, base.len + s.len);
+        memcpy(data, base.data, (size_t)base.len);
+        memcpy(data + base.len, s.data, (size_t)s.len);
+        return (string){.data = data, .len = base.len + s.len};
 }
-
-string string_cat(arena* a, string base, string s);
 
 string string_fill(arena* a, string s, int len);
 
@@ -62,4 +71,3 @@ string_sub(string s, int index, int len) {
         assert(ISIN(0, len, s.len - index) && "Invalid len");
         return (string){.data = s.data + index, .len = len - index};
 }
-
