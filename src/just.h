@@ -40,4 +40,16 @@ void*   arena_alloc(arena* a, size_t align, size_t size, size_t count);
 INLINE arena_savepoint arena_save(arena* a) { assert(a != NULL); return (arena_savepoint){.arena = a, .used = a->used}; }
 INLINE void arena_restore(arena_savepoint save) { assert(save.arena != NULL); save.arena->used = save.used; }
 
+// string ------------------------------------------------------------------------------------------
+typedef struct {
+        const char* data;
+        int len;
+} string;
+#define PRI_string "%.*s"
+#define FMT_string(string) (string).len, (string).data
+
+#define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
+string string_new(arena* a, const char* str, size_t len);
+char*  string_str(arena* a, string s);
+
 #endif // JUST_H
