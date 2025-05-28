@@ -42,3 +42,24 @@ string_str(arena* a, string s) {
         str[s.len] = '\0';
         return str;
 }
+
+string
+string_dup(arena* a, string s) {
+        char* data = allocn(a, char, s.len);
+        memcpy(data, s.data, (size_t)s.len);
+        return (string){.data = data, .len = s.len};
+}
+
+string string_cat(arena* a, string base, string s);
+
+string string_fill(arena* a, string s, int len);
+
+string string_file(arena* a, const char* path);
+
+string
+string_sub(string s, int index, int len) {
+        assert(ISIN(0, index, s.len) && "Invalid index");
+        assert(ISIN(0, len, s.len - index) && "Invalid len");
+        return (string){.data = s.data + index, .len = len - index};
+}
+

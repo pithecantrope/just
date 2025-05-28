@@ -51,5 +51,10 @@ typedef struct {
 #define S(literal) (string){.data = (literal), .len = (int)(sizeof(literal) - 1)}
 string string_new(arena* a, const char* str, size_t len);
 char*  string_str(arena* a, string s);
+string string_dup(arena* a, string s);
+string string_cat(arena* a, string base, string s);
+string string_fill(arena* a, string s, int len);
+string string_file(arena* a, const char* path);
+string string_sub(string s, int index, int len);
 
 #endif // JUST_H
