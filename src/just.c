@@ -13,6 +13,13 @@ arena_create(size_t capacity) {
         return a;
 }
 
+inline void
+arena_destroy(arena* a) {
+        assert(a != NULL && "Invalid arena");
+        free(a->data);
+        free(a);
+}
+
 void*
 arena_alloc(arena* a, size_t align, size_t size, size_t count) {
         assert(a != NULL && "Invalid arena");
@@ -23,6 +30,18 @@ arena_alloc(arena* a, size_t align, size_t size, size_t count) {
         void* ptr = a->data + a->used + padding;
         a->used += padding + count * size;
         return ptr;
+}
+
+inline arena_savepoint
+arena_save(arena* a) {
+        assert(a != NULL && "Invalid arena");
+        return (arena_savepoint){.arena = a, .used = a->used};
+}
+
+inline void
+arena_restore(arena_savepoint save) {
+        assert(save.arena != NULL && "Invalid savepoint");
+        save.arena->used = save.used;
 }
 
 // string ------------------------------------------------------------------------------------------
