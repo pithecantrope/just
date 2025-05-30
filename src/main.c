@@ -7,15 +7,15 @@ main(int argc, char* argv[]) {
         arena* a = arena_create(1 << 16);
         // size_t used;
 
-        // arena -----------------------------------------------------------------------------------
-        arena_savepoint save = arena_save(a);
+        // Arena -----------------------------------------------------------------------------------
         alloc(a, char);
         allocn(a, int, 2);
         assert(a->used == 3 * sizeof(int));
-        arena_restore(save);
+        arena_reset(a);
         assert(a->used == 0);
+        printf(PRIA, FMTA(a));
 
-        // string ----------------------------------------------------------------------------------
+        // String ----------------------------------------------------------------------------------
         arena_destroy(a);
         return EXIT_SUCCESS;
 }
