@@ -11,6 +11,8 @@
  * Because allocations are simple pointer bumps inside a lifetime-bound
  * memory region, it is significantly faster than traditional malloc/free.
  *
+ * @note Uses `assert()` for error handling. No return values need checking.
+ *
  * @author Egor Afanasin <afanasin.egor@gmail.com>
  */
 
@@ -48,14 +50,15 @@ typedef struct {
         char* data;
 } arena;
 
-// printf(PRIA, FMTA(arena));
+// printf(PRIA"\n", FMTA(arena));
 #define PRIA        "{used:%zu, cap:%zu, data:%p}"
 #define FMTA(arena) (arena)->used, (arena)->cap, (void*)(arena)->data
 
 arena* arena_create(size_t capacity);
 void arena_reset(arena* a);
 void arena_destroy(arena* a);
-// use alloc and allocn macros
+
+// Prefer `alloc()` and `allocn()` macros instead
 void* arena_alloc(arena* a, size_t align, size_t size, size_t count);
 #define alloc(arena, type)     (type*)arena_alloc(arena, alignof(type), sizeof(type), 1)
 #define allocn(arena, type, n) (type*)arena_alloc(arena, alignof(type), sizeof(type), (size_t)(n))
