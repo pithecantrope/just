@@ -120,6 +120,17 @@ string_cat(arena* a, string mut_base, string mut_s) {
         return mut_base;
 }
 
+string
+string_insert(arena* a, string base, int index, string s) {
+        assert(ISIN(0, index, base.len) && "Invalid index");
+        assert(base.len <= INT_MAX - s.len && "Result string is too large");
+        string res = {.data = allocn(a, char, base.len + s.len), .len = base.len + s.len};
+        memcpy(res.data, base.data, (size_t)index);
+        memcpy(res.data + index, s.data, (size_t)s.len);
+        memcpy(res.data + index + s.len, base.data + index, (size_t)(base.len - index));
+        return res;
+}
+
 bool
 string_eq(string s1, string s2) {
         return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0;

@@ -89,6 +89,7 @@ string string_file(arena* a, const char* path);
 
 char* string_null(arena* a, string mut_s);
 string string_cat(arena* a, string mut_base, string mut_s);
+string string_insert(arena* a, string base, int index, string s);
 
 bool string_eq(string s1, string s2);
 
