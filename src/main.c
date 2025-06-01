@@ -66,6 +66,12 @@ main(int argc, char* argv[]) {
         assert(string_end(l, empty));
         assert(string_end(f, S("just works\n")));
 
+        // string_find
+        assert(string_find(f, S("Because")) == 19);
+        assert(string_find(hello, l) == 2);
+
+        // string_rfind
+
         // Vector ----------------------------------------------------------------------------------
 
         // Hashmap ---------------------------------------------------------------------------------

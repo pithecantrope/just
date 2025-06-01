@@ -183,6 +183,30 @@ string_end(string s, string suffix) {
                && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0;
 }
 
+int
+string_find(string s, string sub) {
+        if (s.len < sub.len) {
+                return -1;
+        }
+        if (sub.len == 0) {
+                return 0;
+        }
+        int last[UCHAR_MAX + 1]; // Horspool algorithm
+        memset(last, -1, sizeof(last));
+        for (int i = 0; i < sub.len - 1; ++i) {
+                last[(unsigned char)sub.data[i]] = i;
+        }
+        for (int i = 0; i <= s.len - sub.len;
+             i += sub.len - 1 - last[(unsigned char)s.data[i + sub.len - 1]]) {
+                for (int j = sub.len - 1; sub.data[j] == s.data[j + i];) {
+                        if (--j == -1) {
+                                return i;
+                        }
+                }
+        }
+        return -1;
+}
+
 // Vector ------------------------------------------------------------------------------------------
 
 // Hashmap -----------------------------------------------------------------------------------------

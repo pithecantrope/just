@@ -84,7 +84,9 @@ string string_fmt(arena* a, const char* fmt, ...);
 string string_new(arena* a, const char* null, size_t len);
 string string_file(arena* a, const char* path);
 
+/// No copy if `mut_s` is last in the arena
 char* string_null(arena* a, string mut_s);
+/// No copy if contiguous. `mut_s` copied if `mut_base` is last in the arena
 string string_cat(arena* a, string mut_base, string mut_s);
 string string_insert(arena* a, string base, int index, string s);
 string string_repeat(arena* a, string s, int width);
@@ -94,6 +96,8 @@ bool string_eq(string s1, string s2);
 bool string_ieq(string s1, string s2);
 bool string_beg(string s, string prefix);
 bool string_end(string s, string suffix);
+
+int string_find(string s, string sub);
 
 // Vector ------------------------------------------------------------------------------------------
 //
