@@ -1,7 +1,12 @@
 #include "just.h"
+#include <assert.h>
+#include <ctype.h>
 #include <limits.h>
 #include <stdarg.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 // Arena -------------------------------------------------------------------------------------------
 arena*
@@ -146,6 +151,19 @@ string_repeat(arena* a, string s, int width) {
 bool
 string_eq(string s1, string s2) {
         return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0;
+}
+
+bool
+string_ieq(string s1, string s2) {
+        if (s1.len != s2.len) {
+                return false;
+        }
+        for (int i = 0; i < s1.len; ++i) {
+                if (toupper(s1.data[i]) != toupper(s2.data[i])) {
+                        return false;
+                }
+        }
+        return true;
 }
 
 // Vector ------------------------------------------------------------------------------------------

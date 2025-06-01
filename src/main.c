@@ -1,3 +1,6 @@
+#include <assert.h>
+#include <stdlib.h>
+#include <string.h>
 #include "just.h"
 
 int
@@ -46,6 +49,10 @@ main(int argc, char* argv[]) {
         // string_repeat
         assert(string_eq(W, string_repeat(a, W, 1)));
         assert(string_eq(S("#-#-#"), string_repeat(a, S("#-"), 5)));
+
+        // string_ieq
+        assert(!string_ieq(l, W));
+        assert(string_ieq(Hello, hello));
 
         // Vector ----------------------------------------------------------------------------------
 

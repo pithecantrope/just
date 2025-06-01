@@ -23,12 +23,9 @@
 #ifndef JUST_H
 #define JUST_H
 
-#include <assert.h>
 #include <stdalign.h>
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include <stddef.h>
 
 #define MIN(a, b)       ((a) > (b) ? (b) : (a))
 #define MAX(a, b)       ((a) > (b) ? (a) : (b))
@@ -93,6 +90,7 @@ string string_insert(arena* a, string base, int index, string s);
 string string_repeat(arena* a, string s, int width);
 
 bool string_eq(string s1, string s2);
+bool string_ieq(string s1, string s2);
 
 // Vector ------------------------------------------------------------------------------------------
 //
