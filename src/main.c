@@ -43,6 +43,10 @@ main(int argc, char* argv[]) {
         s = S("Hello World");
         assert(string_eq(Hello, string_insert(a, string_insert(a, s, 5, S(",")), 12, S("!"))));
 
+        // string_repeat
+        assert(string_eq(W, string_repeat(a, W, 1)));
+        assert(string_eq(S("#-#-#"), string_repeat(a, S("#-"), 5)));
+
         // Vector ----------------------------------------------------------------------------------
 
         // Hashmap ---------------------------------------------------------------------------------

@@ -131,6 +131,18 @@ string_insert(arena* a, string base, int index, string s) {
         return res;
 }
 
+string
+string_repeat(arena* a, string s, int width) {
+        assert(s.len > 0 && "Invalid string");
+        assert(width >= s.len && "Invalid width");
+        string res = (string){.data = allocn(a, char, width), .len = width};
+        for (int i = 0; i < width / s.len; ++i) {
+                memcpy(res.data + i * s.len, s.data, (size_t)s.len);
+        }
+        memcpy(res.data + width - width % s.len, s.data, (size_t)(width % s.len));
+        return res;
+}
+
 bool
 string_eq(string s1, string s2) {
         return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0;
