@@ -89,8 +89,11 @@ string string_cat(arena* a, string mut_base, string mut_s);
 string string_insert(arena* a, string base, int index, string s);
 string string_repeat(arena* a, string s, int width);
 
+string string_slice(string s, int beg, int end);
 bool string_eq(string s1, string s2);
 bool string_ieq(string s1, string s2);
+bool string_beg(string s, string prefix);
+bool string_end(string s, string suffix);
 
 // Vector ------------------------------------------------------------------------------------------
 //

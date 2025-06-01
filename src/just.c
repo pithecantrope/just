@@ -166,6 +166,23 @@ string_ieq(string s1, string s2) {
         return true;
 }
 
+string
+string_slice(string s, int beg, int end) {
+        assert(beg >= 0 && ISIN(beg, end, s.len) && "Invalid slice range");
+        return (string){.data = s.data + beg, .len = end - beg};
+}
+
+bool
+string_beg(string s, string prefix) {
+        return (s.len >= prefix.len) && memcmp(s.data, prefix.data, (size_t)prefix.len) == 0;
+}
+
+bool
+string_end(string s, string suffix) {
+        return (s.len >= suffix.len)
+               && memcmp(s.data + (s.len - suffix.len), suffix.data, (size_t)suffix.len) == 0;
+}
+
 // Vector ------------------------------------------------------------------------------------------
 
 // Hashmap -----------------------------------------------------------------------------------------

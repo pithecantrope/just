@@ -18,7 +18,7 @@ main(int argc, char* argv[]) {
         assert(a->used == 0);
 
         // String ----------------------------------------------------------------------------------
-        string s;
+        string empty = S(""), s;
         string Hello = S("Hello, World!"), hello = S("hello, world!");
         string W = S("W"), l = S("l");
 
@@ -28,8 +28,8 @@ main(int argc, char* argv[]) {
 
         // string_new
         used = a->used;
-        assert(strcmp("Egor Afanasin", string_null(a, string_new(a, "Egor Afanasin", 13))) == 0);
-        assert(used + 14 == a->used);
+        assert(strcmp("love you", string_null(a, string_new(a, "love you", 8))) == 0);
+        assert(used + 9 == a->used);
 
         // string_file
         string f = string_file(a, "test.txt");
@@ -50,9 +50,21 @@ main(int argc, char* argv[]) {
         assert(string_eq(W, string_repeat(a, W, 1)));
         assert(string_eq(S("#-#-#"), string_repeat(a, S("#-"), 5)));
 
+        // string_slice
+        assert(string_eq(S("just"), string_slice(f, 14, 18)));
+        assert(string_eq(W, string_dup(a, string_slice(Hello, 7, 8))));
+
         // string_ieq
         assert(!string_ieq(l, W));
         assert(string_ieq(Hello, hello));
+
+        // string_beg
+        assert(string_beg(empty, empty));
+        assert(string_beg(f, S("Egor Afanasin")));
+
+        // string_end
+        assert(string_end(l, empty));
+        assert(string_end(f, S("just works\n")));
 
         // Vector ----------------------------------------------------------------------------------
 
