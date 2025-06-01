@@ -15,6 +15,11 @@ main(int argc, char* argv[]) {
         assert(a->used == 0);
 
         // String ----------------------------------------------------------------------------------
+        string Hello = S("Hello, World!"), hello = S("hello, world!");
+
+        // string_fmt
+        assert(string_eq(hello, string_fmt(a, "hello, world!")));
+        assert(string_eq(Hello, string_fmt(a, "%s, %s!", "Hello", "World")));
 
         // Vector ----------------------------------------------------------------------------------
 

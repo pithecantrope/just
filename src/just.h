@@ -82,6 +82,10 @@ typedef struct {
 /// Read-only `string` from a literal
 #define S(literal)                                                                                 \
         (string) { .data = (literal), .len = (int)(sizeof(literal) - 1) }
+string string_dup(arena* a, string s);
+string string_fmt(arena* a, const char* fmt, ...);
+
+bool string_eq(string s1, string s2);
 
 // Vector ------------------------------------------------------------------------------------------
 //

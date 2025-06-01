@@ -13,14 +13,14 @@ arena_create(size_t capacity) {
         return a;
 }
 
-inline void
+void
 arena_destroy(arena* a) {
         assert(a != NULL && "Invalid arena");
         free(a->data);
         free(a);
 }
 
-inline void
+void
 arena_reset(arena* a) {
         assert(a != NULL && "Invalid arena");
         a->used = 0;
@@ -39,6 +39,32 @@ arena_alloc(arena* a, size_t align, size_t size, size_t count) {
 }
 
 // String ------------------------------------------------------------------------------------------
+string
+string_dup(arena* a, string s) {
+        string res = (string){.data = allocn(a, char, s.len), s.len};
+        memcpy(res.data, s.data, (size_t)s.len);
+        return res;
+}
+
+string
+string_fmt(arena* a, const char* fmt, ...) {
+        va_list args;
+        va_start(args, fmt);
+        int len = vsnprintf(NULL, 0, fmt, args);
+        va_end(args);
+        assert(len >= 0 && "Invalid format");
+
+        va_start(args, fmt);
+        string res = (string){.data = allocn(a, char, len), .len = len};
+        vsnprintf(res.data, (size_t)len + 1, fmt, args);
+        va_end(args);
+        return res;
+}
+
+bool
+string_eq(string s1, string s2) {
+        return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0;
+}
 
 // Vector ------------------------------------------------------------------------------------------
 
