@@ -15,7 +15,9 @@ main(int argc, char* argv[]) {
         assert(a->used == 0);
 
         // String ----------------------------------------------------------------------------------
+        string s;
         string Hello = S("Hello, World!"), hello = S("hello, world!");
+        string W = S("W"), l = S("l");
 
         // string_fmt
         assert(string_eq(hello, string_fmt(a, "hello, world!")));
@@ -29,6 +31,13 @@ main(int argc, char* argv[]) {
         // string_file
         string f = string_file(a, "test.txt");
         assert(string_eq(f, S("Egor Afanasin\njust\nBecause it just works\n")));
+
+        // string_cat
+        used = a->used;
+        s = string_dup(a, W);
+        s = string_cat(a, s, string_dup(a, l));
+        assert(string_eq(S("WlW"), string_cat(a, s, string_dup(a, W))));
+        assert(used + 3 == a->used);
 
         // Vector ----------------------------------------------------------------------------------
 

@@ -106,6 +106,20 @@ string_null(arena* a, string mut_s) {
         return mut_s.data;
 }
 
+string
+string_cat(arena* a, string mut_base, string mut_s) {
+        assert(mut_base.len <= INT_MAX - mut_s.len && "Result string is too large");
+        if (mut_base.data + mut_base.len == mut_s.data) {
+                mut_base.len += mut_s.len;
+                return mut_base;
+        }
+        if (mut_base.data + mut_base.len != a->data + a->used) {
+                mut_base = string_dup(a, mut_base);
+        }
+        mut_base.len += string_dup(a, mut_s).len;
+        return mut_base;
+}
+
 bool
 string_eq(string s1, string s2) {
         return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0;
