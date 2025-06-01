@@ -56,7 +56,7 @@ string_fmt(arena* a, const char* fmt, ...) {
 
         va_start(args, fmt);
         string res = (string){.data = allocn(a, char, len), .len = len};
-        vsnprintf(res.data, (size_t)len + 1, fmt, args);
+        vsnprintf(res.data, (size_t)len + 1, fmt, args); // I know
         va_end(args);
         return res;
 }
@@ -67,6 +67,32 @@ string_new(arena* a, const char* null, size_t len) {
         assert(len <= INT_MAX && "Invalid len");
         string res = {.data = allocn(a, char, len), .len = (int)len};
         memcpy(res.data, null, len);
+        return res;
+}
+
+string
+string_file(arena* a, const char* path) {
+        FILE* file = fopen(path,
+#if defined(__linux__)
+                           "rbe"
+#else
+                           "rb"
+#endif
+        );
+        assert(file != NULL && "Invalid path");
+
+        int err = fseek(file, 0, SEEK_END); // Non-standard, but widely supported
+        assert(err == 0);
+        long len = ftell(file);
+        assert(len > 0);
+        assert(len <= INT_MAX && "File is too large");
+        rewind(file);
+
+        string res = (string){.data = allocn(a, char, len), .len = (int)len};
+        size_t read = fread(res.data, sizeof(char), (size_t)len, file);
+        assert((size_t)len == read);
+        err = fclose(file);
+        assert(err == 0);
         return res;
 }
 

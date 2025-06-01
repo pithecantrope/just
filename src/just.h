@@ -85,6 +85,8 @@ typedef struct {
 string string_dup(arena* a, string s);
 string string_fmt(arena* a, const char* fmt, ...);
 string string_new(arena* a, const char* null, size_t len);
+string string_file(arena* a, const char* path);
+
 char* string_null(arena* a, string mut_s);
 
 bool string_eq(string s1, string s2);
