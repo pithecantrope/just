@@ -84,6 +84,8 @@ typedef struct {
         (string) { .data = (literal), .len = (int)(sizeof(literal) - 1) }
 string string_dup(arena* a, string s);
 string string_fmt(arena* a, const char* fmt, ...);
+string string_new(arena* a, const char* null, size_t len);
+char* string_null(arena* a, string mut_s);
 
 bool string_eq(string s1, string s2);
 

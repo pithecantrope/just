@@ -61,6 +61,25 @@ string_fmt(arena* a, const char* fmt, ...) {
         return res;
 }
 
+string
+string_new(arena* a, const char* null, size_t len) {
+        assert(null != NULL && "Invalid null-terminated string");
+        assert(len <= INT_MAX && "Invalid len");
+        string res = {.data = allocn(a, char, len), .len = (int)len};
+        memcpy(res.data, null, len);
+        return res;
+}
+
+char*
+string_null(arena* a, string mut_s) {
+        if (mut_s.data + mut_s.len != a->data + a->used) {
+                mut_s = string_dup(a, mut_s);
+        }
+        alloc(a, char);
+        mut_s.data[mut_s.len] = '\0';
+        return mut_s.data;
+}
+
 bool
 string_eq(string s1, string s2) {
         return s1.len == s2.len && memcmp(s1.data, s2.data, (size_t)s1.len) == 0;
